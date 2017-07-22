@@ -17,7 +17,7 @@ GET      /testAuthenticated            controllers.Login.testAuthenticated
 POST     /User                         controllers.Application.newUser
 GET      /User/:company/:skip/:limit   controllers.Application.getCompanyUsers(company, skip:Int, limit:Int)
 PUT      /User/:id                     controllers.Application.updateUser(id)
-DELETE   /User/:company/:id            controllers.Application.deleteUser(company, id)
+DELETE   /User/:id                     controllers.Application.deleteUser(id)
 GET      /Store                        controllers.Application.getUserStoreList
 
 GET      /GroupInfo                    controllers.Application.getGroupInfoList

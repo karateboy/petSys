@@ -9,9 +9,11 @@ import play.api.libs.json.Json
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.language.implicitConversions
+import org.mongodb.scala.model._
+import org.mongodb.scala.MongoDatabase
 
 case class User(_id: String, company: String, name: String, password: String,
-                phone: String, email: String, groupID: String)
+                phone: String, email: String, groupID: String, storeList: Seq[String])
 
 object User {
   import scala.concurrent._
@@ -26,15 +28,17 @@ object User {
   implicit val writes = Json.writes[User]
 
   val ADMIN_COMPANY = "admin"
-  def buildCompanyUser(company:String, name: String, password: String, phone: String, email: String, groupID: Group.Value) =
+  def buildCompanyUser(company: String, name: String, password: String,
+                       phone: String, email: String, groupID: Group.Value, storeList: Seq[String]) =
     User(_id = buildUserID(company, name),
       company = company,
       name = name,
       password = password,
       phone = phone,
       email = email,
-      groupID = groupID.toString)
-      
+      groupID = groupID.toString,
+      storeList = storeList)
+
   def buildAdminUser(name: String, password: String, phone: String, email: String, groupID: Group.Value) =
     User(_id = buildUserID(ADMIN_COMPANY, name),
       company = ADMIN_COMPANY,
@@ -42,7 +46,8 @@ object User {
       password = password,
       phone = phone,
       email = email,
-      groupID = groupID.toString)
+      groupID = groupID.toString,
+      storeList = Seq.empty[String])
 
   val colName = "user"
 
@@ -92,7 +97,8 @@ object User {
   }
 
   def newCompanyOwner(user: User) = {
-    assert(user.groupID == Group.Owner.toString)
+    val groupID = Group.withName(user.groupID)
+    assert(groupID == Group.Owner)
 
     val companyOpt = waitReadyResult(Company.findCompany(user.company))
     if (companyOpt.isDefined) {
@@ -111,8 +117,8 @@ object User {
     f
   }
 
-  def updateUser(user: User) = {
-    val f = collection.replaceOne(equal("_id", user._id), user).toFuture()
+  def updateUser(_id:String, user: User) = {
+    val f = collection.replaceOne(equal("_id", _id), user).toFuture()
     f.onFailure(errorHandler("updateUser"))
     f
   }
@@ -139,5 +145,19 @@ object User {
     f.onFailure { errorHandler }
     for (users <- f)
       yield users
+  }
+
+  def addStore(userID: String, storeID: String) = {
+    import org.mongodb.scala.model._
+    val f = collection.updateOne(Filters.equal("_id", userID), Updates.addToSet("storeList", storeID)).toFuture()
+    f.onFailure(errorHandler)
+    f
+  }
+
+  def removeStore(userID: String, storeID: String) = {
+    import org.mongodb.scala.model._
+    val f = collection.updateOne(Filters.equal("_id", userID), Updates.pull("storeList", storeID)).toFuture()
+    f.onFailure(errorHandler)
+    f
   }
 }

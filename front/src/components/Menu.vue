@@ -19,7 +19,7 @@
             </li>
             <router-link tag="li" to="/" active-class="active" exact><a><i class="fa fa-th-large"></i> <span
                     class="nav-label">儀錶板</span></a></router-link>
-            <li v-show="user.groupID === 'Owner'">
+            <li v-show="companyOwner">
                 <a aria-expanded="true" class="has-arrow"><i class="fa fa-th-large"></i> <span class="nav-label">店鋪管理</span></a>
                 <ul class="nav nav-second-level collapse">
                     <router-link tag="li"
@@ -40,7 +40,7 @@
                         <span class="nav-label">{{store.name}}</span> </a></li>
                 </ul>
             </li>
-            <li v-show="user.groupID === 'Manager' || user.groupID === 'Owner'">
+            <li v-show="companyAdmin">
                 <a><i class="fa fa-th-large"></i> <span class="nav-label">人員管理</span> <span
                         class="fa arrow"></span></a>
                 <ul class="nav nav-second-level collapse">
@@ -60,24 +60,16 @@
                             <span class="nav-label"></span>更新人員資料</a></router-link>
                 </ul>
             </li>
+            <li v-if="companyClerk">
+                <router-link tag="li"
+                             :to="{name:'UpdateUser'}" active-class="active">
+                    <a><i class="fa fa-th-large"></i>
+                        <span class="nav-label"></span>更新個人資料</a></router-link>
+            </li>
 
-            <li v-show="user.groupID === 'Admin'">
+            <li v-show="sysAdmin">
                 <a aria-expanded="true" class="has-arrow"><i class="fa fa-th-large"></i> <span class="nav-label">系統管理</span></a>
                 <ul class="nav nav-second-level collapse">
-                    <router-link tag="li"
-                                 :to="{name:'AddUser'}" active-class="active">
-                        <a><i class="fa fa-th-large"></i>
-                            <span class="nav-label"></span>新增使用者</a></router-link>
-
-                    <router-link tag="li"
-                                 :to="{name:'DelUser'}" active-class="active">
-                        <a><i class="fa fa-th-large"></i>
-                            <span class="nav-label"></span>刪除使用者</a></router-link>
-
-                    <router-link tag="li"
-                                 :to="{name:'UpdateUser'}" active-class="active">
-                        <a><i class="fa fa-th-large"></i>
-                            <span class="nav-label"></span>更新使用者</a></router-link>
                 </ul>
             </li>
         </ul>
@@ -112,6 +104,18 @@
                     return this.groupInfoMap[this.user.groupID]
                 else
                     return ""
+            },
+            companyOwner(){
+                return this.user.groupID === 'Owner'
+            },
+            companyAdmin(){
+                return this.user.groupID === 'Manager' || this.user.groupID === 'Owner'
+            },
+            companyClerk(){
+              return this.user.groupID === 'Clerk'
+            },
+            sysAdmin(){
+                return this.user.groupID === 'Admin'
             }
         }
     }

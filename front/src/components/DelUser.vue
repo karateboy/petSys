@@ -8,7 +8,7 @@
                     <div class="btn-group" data-toggle="buttons">
                         <label class="btn btn-outline btn-primary dim"
                                v-for="user in userList"
-                               @click="userId=user._id">
+                               @click="userID=user._id">
                             <input type="radio">{{ user.name }} </label>
                     </div>
                 </div>
@@ -31,17 +31,25 @@
 </style>
 <script>
     import axios from 'axios'
+    import {mapGetters} from 'vuex'
     export default{
         data(){
-            this.refresh()
             return {
                 userList: [],
-                userId: ""
+                userID: ""
             }
+        },
+        computed:{
+            ...mapGetters(['user'])
+        },
+        mounted:function () {
+            this.refresh()
         },
         methods: {
             delUser(){
-                axios.delete('/User/' + this.userId).then((resp) => {
+                const url = `/User/${encodeURIComponent(this.userID)}`
+                console.log(url)
+                axios.delete(url).then((resp) => {
                     const ret = resp.data
                     if (ret.ok) {
                         alert('成功')
@@ -51,12 +59,15 @@
                 })
             },
             refresh(){
-                axios.get('/User').then((resp) => {
+                const url = `/User/${this.user.company}/0/1000`
+                axios.get(url).then((resp) => {
                     const ret = resp.data
                     this.userList.splice(0, this.userList.length)
                     for (let user of ret) {
                         this.userList.push(user)
                     }
+                }).catch((err)=>{
+                    alert(err)
                 })
             }
         },

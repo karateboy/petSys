@@ -15,64 +15,58 @@ object Application extends Controller {
 
   import models.User._
 
-  case class NewUserParam(name: String, password: String, phone: String, email: String,
-                          groupID: String, storeList: Seq[String])
-
   def newUser = Security.Authenticated.async(BodyParsers.parse.json) {
     implicit request =>
-      implicit val reads = Json.reads[NewUserParam]
+      implicit val reads = Json.reads[User]
       checkPermission(Group.allowedNewUser)({
-        val newUserParam = request.body.validate[NewUserParam]
+        val newUserParam = request.body.validate[User]
 
         newUserParam.fold(
           error => {
+            Logger.error("bad param...")
             Logger.error(JsError.toJson(error).toString())
             Future { BadRequest(Json.obj("ok" -> false, "msg" -> JsError.toJson(error).toString())) }
           },
           param => {
+            Logger.debug("new User")
             val userInfo = Security.getUserinfo(request).get
-            val company = userInfo.company
+            assert(userInfo.company == param.company)
             val groupID = Group.withName(param.groupID)
-            val newUser = buildCompanyUser(company = company,
+            val newUser = buildCompanyUser(company = param.company,
               name = param.name,
               password = param.password,
               phone = param.phone,
               email = param.email,
-              groupID = groupID)
+              groupID = groupID,
+              storeList = param.storeList)
 
             val f = User.newUser(newUser)
             f.onFailure(errorHandler)
 
-            implicit val db = MongoDB.mongoClient.getDatabase(userInfo.dbName)
-            val f2 =
-              groupID match {
-                case Group.Manager =>
-                  for (storeID <- param.storeList) yield Store.addManager(storeID, newUser._id)
-                case Group.Clerk =>
-                  for (storeID <- param.storeList) yield Store.addClerk(storeID, newUser._id)
-              }
+            f.recover({
+              case ex: Throwable =>
+                Future {
+                  Logger.error("newUser failed", ex)
+                  Ok(Json.obj("ok" -> false, "msg" -> "使用者登入ID重複!"))
 
-            val f2_all = Future.sequence(f2)
-            f2_all.onFailure(errorHandler)
-
-            val overallF = Future.sequence(List(f, f2_all))
-            overallF.recover({
-              case _: Throwable =>
-                Logger.info("recover from newUser error...")
-                Ok(Json.obj("ok" -> false))
+                }
             })
 
-            for (result <- overallF) yield {
+            for (result <- f) yield {
+              Logger.info("add new user")
               Ok(Json.obj("ok" -> true))
             }
           })
       })
   }
 
-  def deleteUser(company: String, name: String) = Security.Authenticated.async {
+  def deleteUser(encodedID: String) = Security.Authenticated.async {
     implicit request =>
-      checkPermission(Group.allowedNewUser)({
-        val f = User.deleteUser(User.buildUserID(company, name))
+      checkPermission(Group.allowedDelUser)({
+        val userInfo = Security.getUserInfo().get
+        val _id = java.net.URLDecoder.decode(encodedID, "UTF-8")
+        assert(_id.startsWith(s"${userInfo.company}#"))
+        val f = User.deleteUser(_id)
         val requestF =
           for (result <- f) yield {
             Ok(Json.obj("ok" -> (result.getDeletedCount == 1)))
@@ -86,8 +80,9 @@ object Application extends Controller {
       })
   }
 
-  def updateUser(id: String) = Security.Authenticated.async(BodyParsers.parse.json) {
+  def updateUser(encodedID: String) = Security.Authenticated.async(BodyParsers.parse.json) {
     implicit request =>
+      val _id = java.net.URLDecoder.decode(encodedID, "UTF-8")
       val userParam = request.body.validate[User]
 
       userParam.fold(
@@ -98,16 +93,47 @@ object Application extends Controller {
           }
         },
         param => {
-          val f = User.updateUser(param)
-          for (ret <- f) yield {
-            Ok(Json.obj("ok" -> (ret.getMatchedCount == 1)))
+          val userInfo = Security.getUserInfo().get
+          val groupID = Group.withName(userInfo.groupID)
+          if (userInfo.id == _id || Group.allowedNewUser.contains(groupID)) {
+            val f = User.updateUser(_id, param)
+            for (ret <- f) yield {
+              Ok(Json.obj("ok" -> (ret.getMatchedCount == 1)))
+            }
+          }else{
+            Future{
+              Forbidden("無權限")
+            }
           }
         })
   }
 
   def getCompanyUsers(company: String, skip: Int, limit: Int) = Security.Authenticated.async {
-    val userF = User.getCompanyUsers(company)(skip, limit)
-    for (users <- userF) yield Ok(Json.toJson(users))
+    implicit request =>
+      val userInfo = Security.getUserInfo().get
+      val userF = User.getCompanyUsers(company)(0, 1000)
+      for (users <- userF) yield {
+        val groupID = Group.withName(userInfo.groupID)
+        groupID match {
+          case Group.Admin =>
+            Ok(Json.toJson(users))
+          case Group.Owner =>
+            Ok(Json.toJson(users))
+          case Group.Manager =>
+            val filterdUser = users.filter { usr =>
+              val usrGroupID = Group.withName(usr.groupID)
+              usrGroupID == Group.Clerk ||
+                (usrGroupID == Group.Manager && userInfo.id == usr._id)
+            }
+            Ok(Json.toJson(filterdUser))
+          case Group.Clerk =>
+            val filterdUser = users.filter { usr =>
+              val usrGroupID = Group.withName(usr.groupID)
+              usrGroupID == Group.Clerk && userInfo.id == usr._id
+            }
+            Ok(Json.toJson(filterdUser))
+        }
+      }
   }
 
   def checkPermission[A, B <: UserInfo](allowedGroup: Seq[Group.Value])(permited: Future[Result])(implicit request: play.api.mvc.Security.AuthenticatedRequest[A, B]) = {
@@ -126,8 +152,8 @@ object Application extends Controller {
           Forbidden("無此使用者!")
         }
       else {
-        val group = users(0).groupID
-        if (!allowedGroup.contains(group))
+        val groupID = Group.withName(users(0).groupID)
+        if (!allowedGroup.contains(groupID))
           Future {
             Forbidden("無權限!")
           }
@@ -149,7 +175,7 @@ object Application extends Controller {
   def getGroupInfoListBelow = Security.Authenticated {
     implicit request =>
       val userInfo = Security.getUserInfo().get
-      val infoList = Group.getGroupInfoListBelow(Group.withName(userInfo.groupId))
+      val infoList = Group.getGroupInfoListBelow(Group.withName(userInfo.groupID))
       implicit val write = Json.writes[GroupInfo]
       Ok(Json.toJson(infoList))
   }

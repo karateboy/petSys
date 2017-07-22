@@ -10,7 +10,7 @@ import scala.concurrent.ExecutionContext.Implicits.global
 import scala.language.implicitConversions
 import org.mongodb.scala.bson._
 
-case class Store(_id: String, name: String, addr: String, phone: String, managers: Seq[String], clerks: Seq[String])
+case class Store(_id: String, name: String, addr: String, phone: String)
 object Store {
   import org.mongodb.scala._
   import org.mongodb.scala.bson.codecs.Macros._
@@ -26,42 +26,29 @@ object Store {
   def collection(implicit db: MongoDatabase) =
     db.getCollection[Store](colName).withCodecRegistry(codecRegistry)
 
-  def init(colNames: Seq[String], owners: Seq[String])(implicit db: MongoDatabase) {
+  def init(colNames: Seq[String], ownerID: String)(implicit db: MongoDatabase) {
     if (!colNames.contains(colName)) {
       val f = db.createCollection(colName).toFuture()
       f.onFailure(errorHandler)
       f.onSuccess({
         case x: Completed =>
           val id = Identity.getNewID(Identity.Store)
-          val defaultStore = Store(s"${id.seq}", s"${id.seq}號店", "地址", "123456789", owners, Seq.empty[String])
-          newStore(defaultStore)
+          val defaultStore = Store(s"${id.seq}", s"${id.seq}號店", "地址", "123456789")
+          newStore(defaultStore, ownerID)
       })
     }
   }
 
-  def newStore(store: Store)(implicit db: MongoDatabase) = {
+  import scala.concurrent._
+  //Always add store to owner...
+  def newStore(store: Store, ownerID:String)(implicit db: MongoDatabase) = {
     val f = collection.insertOne(store).toFuture()
     f.onFailure(errorHandler)
-    f
+    val f1 = User.addStore(ownerID, store._id)
+    f1.onFailure(errorHandler)
+    Future.sequence(List(f, f1))
   }
 
-  def addManager(storeID:String, usrID:String)(implicit db: MongoDatabase) = addPerson(storeID, usrID, "managers")
-  def addClerk(storeID:String, usrID:String)(implicit db: MongoDatabase) = addPerson(storeID, usrID, "clerks")
-  private def addPerson(storeID:String, usrID:String, personType:String)(implicit db: MongoDatabase)={
-    import org.mongodb.scala.model._
-    val f = collection.updateOne(Filters.equal("_id", storeID), Updates.addToSet(personType, usrID)).toFuture()
-    f.onFailure(errorHandler)
-    f
-  }
-
-  def removeManager(storeID:String, usrID:String)(implicit db: MongoDatabase) = removePerson(storeID, usrID, "managers")
-  def removeClerk(storeID:String, usrID:String)(implicit db: MongoDatabase) = removePerson(storeID, usrID, "clerks")
-  private def removePerson(storeID:String, usrID:String, personType:String)(implicit db: MongoDatabase)={
-    import org.mongodb.scala.model._
-    val f = collection.updateOne(Filters.equal("_id", storeID), Updates.pull(personType, usrID)).toFuture()
-    f.onFailure(errorHandler)
-    f
-  }
 
   import org.mongodb.scala.model._
   def upsert(_id: String, newStore: Store)(implicit db: MongoDatabase) = {
@@ -78,13 +65,18 @@ object Store {
 
   def getAllStores(implicit db: MongoDatabase) = getStoreList(0, 1000)
 
+  def getStoreList(storeIDs: Seq[String])(implicit db: MongoDatabase) = {
+    val f = collection.find(Filters.in("_id", storeIDs)).toFuture()
+    f.onFailure(errorHandler)
+    f
+  }
+
   def getUserStoreList(usr: User)(implicit db: MongoDatabase) = {
-    if (usr.groupID == Group.Owner.toString() || usr.groupID == Group.Admin.toString()) {
+    val groupID = Group.withName(usr.groupID)
+    if (groupID == Group.Owner || groupID == Group.Admin) {
       getAllStores
-    } else if (usr.groupID == Group.Manager.toString()) {
-      getAllStores.map { _.filter { _.managers.contains(usr._id) } }
-    } else if (usr.groupID == Group.Clerk.toString()) {
-      getAllStores.map { _.filter { _.clerks.contains(usr._id) } }
+    } else if (groupID == Group.Manager || groupID == Group.Clerk) {
+      getStoreList(usr.storeList)
     } else
       throw new Exception(s"Unknow groupID ${usr.groupID}")
   }

@@ -5,7 +5,7 @@ import play.api.mvc._
 import scala.concurrent._
 
 class AuthenticatedRequest[A](val userinfo: String, request: Request[A]) extends WrappedRequest[A](request)
-case class UserInfo(id: String, name: String, groupId: String, company:String, dbName: String)
+case class UserInfo(id: String, name: String, groupID: String, company:String, dbName: String)
 
 object Security {
   val idKey = "ID"
@@ -48,7 +48,7 @@ object Security {
     request.session +
       (idKey -> userInfo.id.toString()) + 
       (nameKey -> userInfo.name) +
-      (groupKey -> userInfo.groupId) +
+      (groupKey -> userInfo.groupID) +
       (companyKey -> userInfo.company) +
       (dbNameKey -> userInfo.dbName)
   }

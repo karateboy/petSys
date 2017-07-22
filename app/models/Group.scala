@@ -22,11 +22,12 @@ object Group extends Enumeration {
   }
 
   def getGroupInfoListBelow(level:Group.Value) ={
-    val seq = levelSeq.dropWhile { x => x != level }.drop(1)
+    val seq = levelSeq.dropWhile { x => x != level }
     map.filterKeys { key => seq.contains(key)  }.map { m => GroupInfo(m._1.toString, m._2) }.toList
   }
 
-  val allowedNewUser = Seq(Group.Admin, Group.Owner)
+  val allowedNewUser = Seq(Group.Admin, Group.Owner, Group.Manager)
+  val allowedDelUser = Seq(Group.Admin, Group.Owner, Group.Manager)
 
   implicit val reads: Reads[Group.Value] = EnumUtils.enumReads(Group)
   implicit val writes: Writes[Group.Value] = EnumUtils.enumWrites

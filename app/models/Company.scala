@@ -9,7 +9,7 @@ import play.api.libs.json.Json
 import org.mongodb.scala._
 import scala.concurrent.ExecutionContext.Implicits.global
 
-case class Company(_id: String, dbName: String, owners: Seq[String]) {
+case class Company(_id: String, dbName: String, ownerID: String) {
   def database: MongoDatabase = MongoDB.mongoClient.getDatabase(dbName)
   def initDB = {
     val f = database.listCollectionNames().toFuture()
@@ -18,7 +18,7 @@ case class Company(_id: String, dbName: String, owners: Seq[String]) {
       val f = Identity.initCompanyDB(colNames)
       ModelHelper.waitReadyResult(f)
 
-      Store.init(colNames, owners)
+      Store.init(colNames, ownerID)
       EventLog.init(colNames)
     }
     //Program need to wait before init complete
@@ -67,13 +67,13 @@ object Company {
     }
   }
 
-  def create(company: String, owner: String) = {
+  def create(company: String, ownerID: String) = {
     def getDbName: String = {
       val seq = Identity.getNewID(Identity.Database)(MongoDB.masterDB).seq
       "DB%06d".format(seq)
     }
-    Logger.info(s"Create $company company for $owner")
-    createCompany(Company(company, getDbName, Seq(owner)))
+    Logger.info(s"Create $company company for $ownerID")
+    createCompany(Company(company, getDbName, ownerID))
   }
 
   private def createCompany(company: Company) = {

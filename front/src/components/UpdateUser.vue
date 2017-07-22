@@ -20,32 +20,40 @@
     </div>
 </template>
 <style>
-    body{
-        background-color:#ff0000;
+    body {
+        background-color: #ff0000;
     }
 
 </style>
 <script>
     import User from './User.vue'
     import axios from 'axios'
+    import {mapGetters} from 'vuex'
 
-    export default{
-        data(){
-            this.refresh()
+    export default {
+        data() {
             return {
                 userList: [],
                 selectedUser: null
             }
         },
+        mounted: function () {
+            this.refresh()
+        },
+        computed: {
+            ...mapGetters(['user'])
+        },
         methods: {
-
-            refresh(){
-                axios.get('/User').then((resp) => {
+            refresh() {
+                const url = `/User/${this.user.company}/0/1000`
+                axios.get(url).then((resp) => {
                     const ret = resp.data
                     this.userList.splice(0, this.userList.length)
                     for (let user of ret) {
                         this.userList.push(user)
                     }
+                }).catch((err) => {
+                    alert(err)
                 })
             }
         },

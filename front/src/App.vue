@@ -66,7 +66,7 @@
                     if(!ret.ok)
                         console.log(ret.msg)
 
-                    this.$store.commit('updateAuthenticated', {authenticated: false, user: {}});
+                    this.$store.commit('updateAuthenticated', {authenticated: false, user: {}, storeList:[]});
                     this.$router.push({name: 'Login'})
                     alert("登出")
                 }).catch((err) => {

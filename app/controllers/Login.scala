@@ -9,13 +9,25 @@ import models._
 import models.ModelHelper._
 import scala.concurrent.ExecutionContext.Implicits.global
 
-case class Credential(company:String, name: String, password: String)
+case class Credential(company: String, name: String, password: String)
 
 /**
  * @author user
  */
 object Login extends Controller {
   implicit val credentialReads = Json.reads[Credential]
+
+  def getUserCredential(user: User) = {
+    val companyOpt = waitReadyResult(Company.findCompany(user.company))
+    if (companyOpt.isEmpty)
+      throw new Exception(s"Company ${user.company} not existed!")
+
+    val company = companyOpt.get
+    val userInfo = UserInfo(user._id, user.name, user.groupID.toString(), company._id, company.dbName)
+    val storeListF = Store.getUserStoreList(user)(company.database)
+    val storeList = waitReadyResult(storeListF)
+    (Json.obj("ok" -> true, "user" -> user, "storeList" -> storeList), userInfo)
+  }
 
   def authenticate = Action(BodyParsers.parse.json) {
     implicit request =>
@@ -30,16 +42,8 @@ object Login extends Controller {
           if (users.isEmpty || users(0).password != crd.password)
             Ok(Json.obj("ok" -> false, "msg" -> "密碼或帳戶錯誤"))
           else {
-            val user = users(0)            
-            val companyOpt = waitReadyResult(Company.findCompany(user.company))
-            if(companyOpt.isEmpty)
-              throw new Exception(s"Company ${user.company} not existed!")
-            
-            val company = companyOpt.get
-            val userInfo = UserInfo(user._id, user.name, user.groupID.toString(), company._id, company.dbName)
-            val storeListF = Store.getUserStoreList(user)(company.database)
-            val storeList = waitReadyResult(storeListF)
-            Ok(Json.obj("ok" -> true, "user" -> user, "storeList"->storeList)).withSession(Security.setUserinfo(request, userInfo))
+            val (ret, userInfo) = getUserCredential(users(0))
+            Ok(ret).withSession(Security.setUserinfo(request, userInfo))
           }
         })
   }
@@ -52,12 +56,12 @@ object Login extends Controller {
       if (users.length == 0)
         Ok(Json.obj("ok" -> false, "msg" -> "帳戶不存在")).withNewSession
       else {
-        val user = users(0)
-        Ok(Json.obj("ok" -> true, "user" -> user))
+        val (ret, userInfo) = getUserCredential(users(0))
+        Ok(ret).withSession(Security.setUserinfo(request, userInfo))
       }
   }
 
   def logout = Action {
-    Ok(Json.obj(("ok"->true))).withNewSession
+    Ok(Json.obj(("ok" -> true))).withNewSession
   }
 }

@@ -15,11 +15,13 @@ POST     /authenticate                 controllers.Login.authenticate
 GET      /testAuthenticated            controllers.Login.testAuthenticated
 
 POST     /User                         controllers.Application.newUser
-GET      /User                         controllers.Application.getAllUsers
+GET      /User/:company/:skip/:limit   controllers.Application.getCompanyUsers(company, skip:Int, limit:Int)
 PUT      /User/:id                     controllers.Application.updateUser(id)
-DELETE   /User/:id                     controllers.Application.deleteUser(id)
+DELETE   /User/:company/:id            controllers.Application.deleteUser(company, id)
+GET      /Store                        controllers.Application.getUserStoreList
 
-GET      /Group                        controllers.Application.getGroupInfoList
+GET      /GroupInfo                    controllers.Application.getGroupInfoList
+GET      /Group                        controllers.Application.getGroupInfoListBelow
 
 
 

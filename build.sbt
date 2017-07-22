@@ -1,10 +1,10 @@
 name := """petSys"""
 
-version := "1.0"
+version := "1.0.1"
 
 lazy val root = (project in file(".")).enablePlugins(PlayScala)
 
-scalaVersion := "2.11.8"
+scalaVersion := "2.11.11"
 
 libraryDependencies ++= Seq(
   jdbc,
@@ -13,10 +13,8 @@ libraryDependencies ++= Seq(
   filters,
   specs2 % Test,
   "com.github.nscala-time" %% "nscala-time" % "2.16.0",
-  "org.mongodb.scala" %% "mongo-scala-driver" % "1.2.1"
+  "org.mongodb.scala" %% "mongo-scala-driver" % "2.1.0"
 )
-
-//libraryDependencies += "com.google.guava" % "guava" % "19.0"
 
 resolvers += "scalaz-bintray" at "http://dl.bintray.com/scalaz/releases"
 

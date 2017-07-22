@@ -5,12 +5,22 @@ import play.api.libs.json._
 import play.api.libs.functional.syntax._
 import play.api._
 import scala.collection.JavaConversions._
+import scala.concurrent.ExecutionContext.Implicits.global
+import scala.concurrent._
 
 /**
  * @author user
  */
 
 object ModelHelper {
+  implicit class ErrorMessageFuture[A](val future: Future[A]) extends AnyVal {
+    def errorMsg(msg: String): Future[A] = future.recoverWith {
+      case t: Throwable =>
+        Logger.error(msg, t)
+        Future.failed(new Exception(msg, t))
+    }
+  }
+
   implicit def getSqlTimestamp(t: DateTime) = {
     new java.sql.Timestamp(t.getMillis)
   }
@@ -44,8 +54,6 @@ object ModelHelper {
       throw ex
   }
 
-  import scala.concurrent._
-
   def waitReadyResult[T](f: Future[T]) = {
     import scala.concurrent.duration._
     import scala.util._
@@ -62,59 +70,57 @@ object ModelHelper {
   }
 
   import org.mongodb.scala.bson._
-  def getOptionTime(key: String)(implicit doc:Document) = {
+  def getOptionTime(key: String)(implicit doc: Document) = {
     if (doc(key).isNull())
       None
     else
       Some(doc(key).asInt64().getValue)
   }
-  
-  def getOptionStr(key: String)(implicit doc:Document) = {
+
+  def getOptionStr(key: String)(implicit doc: Document) = {
     if (doc(key).isNull())
       None
     else
       Some(doc.getString(key))
   }
 
-  def getOptionDouble(key: String)(implicit doc:Document) = {
+  def getOptionDouble(key: String)(implicit doc: Document) = {
     if (doc(key).isNull())
       None
     else
       Some(doc(key).asDouble().getValue)
   }
 
-  def getOptionInt(key: String)(implicit doc:Document) = {
+  def getOptionInt(key: String)(implicit doc: Document) = {
     if (doc(key).isNull())
       None
     else
       Some(doc(key).asInt32().getValue)
   }
-  
-  def getOptionDoc(key: String)(implicit doc:Document) = {
+
+  def getOptionDoc(key: String)(implicit doc: Document) = {
     if (doc(key).isNull())
       None
     else
       Some(doc(key).asDocument())
   }
-  
-  def getArray[T](key: String, mapper:(BsonValue)=>T)(implicit doc:Document) = {
+
+  def getArray[T](key: String, mapper: (BsonValue) => T)(implicit doc: Document) = {
 
     val array = doc(key).asArray().getValues
-    
+
     val result = array map {
-        v => mapper(v)
-      }
+      v => mapper(v)
+    }
     result.toSeq
   }
-  
-  def getOptionArray[T](key:String, mapper:(BsonValue)=>T)(implicit doc:Document) = {
+
+  def getOptionArray[T](key: String, mapper: (BsonValue) => T)(implicit doc: Document) = {
     if (doc(key).isNull())
       None
     else
-      Some(getArray(key, mapper))    
+      Some(getArray(key, mapper))
   }
-  
-  
 }
 
 object EnumUtils {
@@ -137,5 +143,30 @@ object EnumUtils {
 
   implicit def enumFormat[E <: Enumeration](enum: E): Format[E#Value] = {
     Format(enumReads(enum), enumWrites)
+  }
+}
+
+object ObjectIdUtils {
+  import org.mongodb.scala.bson._
+  def idReads: Reads[ObjectId] = new Reads[ObjectId] {
+    def reads(json: JsValue): JsResult[ObjectId] = json match {
+      case JsString(s) => {
+        try {
+          val obj = new org.mongodb.scala.bson.ObjectId(s)
+          JsSuccess(obj)
+        } catch {
+          case _: NoSuchElementException => JsError(s"Invalid objectId string")
+        }
+      }
+      case _ => JsError("String value expected")
+    }
+  }
+
+  implicit def idWrites: Writes[ObjectId] = new Writes[ObjectId] {
+    def writes(v: ObjectId): JsValue = JsString(v.toHexString)
+  }
+
+  implicit def idFormat: Format[ObjectId] = {
+    Format(idReads, idWrites)
   }
 }

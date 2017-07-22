@@ -3,7 +3,6 @@ import play.api._
 import com.github.nscala_time.time.Imports._
 import models.ModelHelper._
 import models._
-import org.mongodb.scala.bson.Document
 import play.api.libs.json._
 import play.api.libs.functional.syntax._
 import play.api.libs.json.Json
@@ -11,102 +10,134 @@ import play.api.libs.json.Json
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.language.implicitConversions
 
-case class User(_id: String, password: String, name: String, phone: String, email: String, groupId: String) {
-  val dbName = _id
-}
+case class User(_id: String, company: String, name: String, password: String,
+                phone: String, email: String, groupID: String)
 
 object User {
   import scala.concurrent._
   import scala.concurrent.duration._
 
-  val ColName = "users"
-  val collection = MongoDB.database.getCollection(ColName)
-  implicit val userRead = Json.reads[User]
-  implicit val userWrite = Json.writes[User]
+  import org.mongodb.scala.bson.codecs.Macros._
+  import org.mongodb.scala.bson.codecs.DEFAULT_CODEC_REGISTRY
+  import org.bson.codecs.configuration.CodecRegistries.{ fromRegistries, fromProviders }
 
-  def toDocument(user: User) = Document(Json.toJson(user).toString())
+  def buildUserID(company: String, name: String) = s"$company#$name"
+  implicit val reads = Json.reads[User]
+  implicit val writes = Json.writes[User]
+
+  val ADMIN_COMPANY = "admin"
+  def buildCompanyUser(company:String, name: String, password: String, phone: String, email: String, groupID: Group.Value) =
+    User(_id = buildUserID(company, name),
+      company = company,
+      name = name,
+      password = password,
+      phone = phone,
+      email = email,
+      groupID = groupID.toString)
+      
+  def buildAdminUser(name: String, password: String, phone: String, email: String, groupID: Group.Value) =
+    User(_id = buildUserID(ADMIN_COMPANY, name),
+      company = ADMIN_COMPANY,
+      name = name,
+      password = password,
+      phone = phone,
+      email = email,
+      groupID = groupID.toString)
+
+  val colName = "user"
+
+  val codecRegistry = fromRegistries(fromProviders(classOf[User]), DEFAULT_CODEC_REGISTRY)
+
+  val collection = MongoDB.masterDB.getCollection[User](colName).withCodecRegistry(codecRegistry)
+
+  val defaultAdmin = buildAdminUser("karateboy", "abc123", "0920660136",
+    "karateboy.tw@gmail.com", Group.Admin)
+
+  val defaultOwner = buildAdminUser("owner", "abc123", "0920660136",
+    "karateboy.tw@gmail.com", Group.Owner)
+
+  val defaultManager = buildAdminUser("manager", "abc123", "0920660136",
+    "karateboy.tw@gmail.com", Group.Manager)
+
+  val defaultClerk = buildAdminUser("clerk", "abc123", "0920660136",
+    "karateboy.tw@gmail.com", Group.Clerk)
 
   def init(colNames: Seq[String]) {
-    if (!colNames.contains(ColName)) {
-      val f = MongoDB.database.createCollection(ColName).toFuture()
+    if (!colNames.contains(colName)) {
+      val f = MongoDB.masterDB.createCollection(colName).toFuture()
       f.onFailure(errorHandler)
     }
+
     val f = collection.count().toFuture()
     f.onSuccess({
-      case count: Seq[Long] =>
-        if (count(0) == 0) {
-          val defaultUser = User("karateboy", "abc123", "Aragorn", "0920660136", 
-              "karateboy.tw@gmail.com", Group.Admin.toString)
-          Logger.info("Create default user:" + defaultUser.toString())
-          newUser(defaultUser)
+      case count: Long =>
+        if (count == 0) {
+          Logger.info("create default admin/owner/manager/clerk")
+          val completeF = newCompanyOwner(defaultOwner)
+          completeF.onSuccess({
+            case x =>
+              newUser(defaultAdmin)
+              newUser(defaultManager)
+              newUser(defaultClerk)
+          })
         }
     })
     f.onFailure(errorHandler)
   }
 
-  def toUser(doc: Document) = {
-    val ret = Json.parse(doc.toJson()).validate[User]
-
-    ret.fold(error => {
-      Logger.error(JsError.toJson(error).toString())
-      throw new Exception(JsError.toJson(error).toString)
-    },
-      usr => usr)
-
+  def newUser(user: User) = {
+    val f = collection.insertOne(user).toFuture()
+    f.onFailure(errorHandler("newUser"))
+    f
   }
 
-  def newUser(user: User) = {
-    collection.insertOne(toDocument(user)).toFuture()
+  def newCompanyOwner(user: User) = {
+    assert(user.groupID == Group.Owner.toString)
+
+    val companyOpt = waitReadyResult(Company.findCompany(user.company))
+    if (companyOpt.isDefined) {
+      throw new Exception("Company existed!")
+    } else {
+      val f1 = Company.create(user.company, user._id)
+      val f2 = collection.insertOne(user).toFuture()
+      Future.sequence(List(f1, f2))
+    }
   }
 
   import org.mongodb.scala.model.Filters._
   def deleteUser(email: String) = {
-    collection.deleteOne(equal("_id", email)).toFuture()
-  }
-
-  def updateUser(user: User) = {
-    val f = collection.replaceOne(equal("_id", user._id), toDocument(user)).toFuture()
+    val f = collection.deleteOne(equal("_id", email)).toFuture()
+    f.onFailure(errorHandler("deleteUser"))
     f
   }
 
-  def getUserByEmail(email: String) = {
-    val f = collection.find(equal("_id", email)).first().toFuture()
-    f.onFailure { errorHandler }
-    val ret = waitReadyResult(f)
-    if (ret.length == 0)
-      None
-    else
-      Some(toUser(ret(0)))
+  def updateUser(user: User) = {
+    val f = collection.replaceOne(equal("_id", user._id), user).toFuture()
+    f.onFailure(errorHandler("updateUser"))
+    f
   }
 
-  def getUserByEmailFuture(email: String) = {
-    val f = collection.find(equal("_id", email)).first().toFuture()
-    f.onFailure { errorHandler }
-    for (ret <- f)
-      yield if (ret.length == 0)
-      None
-    else
-      Some(toUser(ret(0)))
+  def getUserByID(_id: String) = {
+    val f = collection.find(equal("_id", _id)).toFuture()
+    f.onFailure(errorHandler("getUserByID"))
+
+    for (user <- f)
+      yield user
   }
 
-  def getAllUsers() = {
-    val f = collection.find().toFuture()
-    f.onFailure { errorHandler }
-    val ret = waitReadyResult(f)
-    ret.map { toUser }
-  }
+  def getUserByCompanyAndName(company: String, name: String) = getUserByID(buildUserID(company, name))
 
-  def getAllUsersFuture() = {
-    val f = collection.find().toFuture()
-    f.onFailure { errorHandler }
-    for (ret <- f) yield ret.map { toUser }
+  def getCompanyUsers(company: String)(skip: Int, limit: Int) = {
+    import org.mongodb.scala.model._
+    val f = collection.find(Filters.equal("company", company)).skip(skip).limit(limit).toFuture()
+    f.onFailure(errorHandler("getCompanyUsers"))
+    f
   }
 
   def getAdminUsers() = {
-    val f = collection.find(equal("isAdmin", true)).toFuture()
+    val f = collection.find(equal("groupId", Group.Admin.toString)).toFuture()
     f.onFailure { errorHandler }
-    val ret = waitReadyResult(f)
-    ret.map { toUser }
+    for (users <- f)
+      yield users
   }
-
 }

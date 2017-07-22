@@ -5,26 +5,29 @@ import play.api.mvc._
 import scala.concurrent._
 
 class AuthenticatedRequest[A](val userinfo: String, request: Request[A]) extends WrappedRequest[A](request)
-case class UserInfo(id: String, name: String, groupId: String, dbName: String)
+case class UserInfo(id: String, name: String, groupId: String, company:String, dbName: String)
 
 object Security {
   val idKey = "ID"
   val nameKey = "Name"
   val groupKey = "Group"
+  val companyKey = "Company"
   val dbNameKey = "DbName"
 
   def getUserinfo(request: RequestHeader): Option[UserInfo] = {
     val idOpt = request.session.get(idKey)
     val nameOpt = request.session.get(nameKey)
     val groupOpt = request.session.get(groupKey)
+    val companyOpt = request.session.get(companyKey)
     val dbNameOpt = request.session.get(dbNameKey)
 
     for {
       id <- idOpt
       name <- nameOpt
       groupId <- groupOpt
+      company <- companyOpt
       dbName <- dbNameOpt
-    } yield UserInfo(id, name, groupId, dbName)
+    } yield UserInfo(id, name, groupId, company, dbName)
   }
 
   def onUnauthorized(request: RequestHeader) = {
@@ -46,6 +49,7 @@ object Security {
       (idKey -> userInfo.id.toString()) + 
       (nameKey -> userInfo.name) +
       (groupKey -> userInfo.groupId) +
+      (companyKey -> userInfo.company) +
       (dbNameKey -> userInfo.dbName)
   }
 

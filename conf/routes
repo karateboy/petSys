@@ -18,7 +18,11 @@ POST     /User                         controllers.Application.newUser
 GET      /User/:company/:skip/:limit   controllers.Application.getCompanyUsers(company, skip:Int, limit:Int)
 PUT      /User/:id                     controllers.Application.updateUser(id)
 DELETE   /User/:id                     controllers.Application.deleteUser(id)
+
 GET      /Store                        controllers.Application.getUserStoreList
+POST     /Store                        controllers.Application.newStore
+PUT      /Store/:id                    controllers.Application.updateStore(id)
+DELETE   /Store/:id                    controllers.Application.deleteStore(id)
 
 GET      /GroupInfo                    controllers.Application.getGroupInfoList
 GET      /Group                        controllers.Application.getGroupInfoListBelow

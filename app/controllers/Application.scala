@@ -100,8 +100,8 @@ object Application extends Controller {
             for (ret <- f) yield {
               Ok(Json.obj("ok" -> (ret.getMatchedCount == 1)))
             }
-          }else{
-            Future{
+          } else {
+            Future {
               Forbidden("無權限")
             }
           }
@@ -214,6 +214,7 @@ object Application extends Controller {
     }
   }
 
+  //Store
   def getUserStoreList = Security.Authenticated.async {
     implicit request =>
       verifyUserInfo((db: MongoDatabase, usr: User) => {
@@ -223,4 +224,84 @@ object Application extends Controller {
         for (storeList <- storeListF) yield Ok(Json.toJson(storeList))
       })
   }
+
+  def newStore = Security.Authenticated.async(BodyParsers.parse.json) {
+    implicit request =>
+      implicit val reads = Json.reads[Store]
+      checkPermission(Group.allowNewStore)({
+        val newStoreParam = request.body.validate[Store]
+
+        newStoreParam.fold(
+          error => {
+            Logger.error("bad param...")
+            Logger.error(JsError.toJson(error).toString())
+            Future { BadRequest(Json.obj("ok" -> false, "msg" -> JsError.toJson(error).toString())) }
+          },
+          store => {
+            Logger.debug("new Store")
+            val userInfo = Security.getUserinfo(request).get
+            implicit val db = MongoDB.mongoClient.getDatabase(userInfo.dbName)
+            val f = Store.newStore(store, userInfo.id)
+            f.onFailure(errorHandler)
+
+            f.recover({
+              case ex: Throwable =>
+                Future {
+                  Logger.error("newUser failed", ex)
+                  Ok(Json.obj("ok" -> false, "msg" -> "Store重複!"))
+                }
+            })
+
+            for (result <- f) yield {
+              Logger.info("add new store")
+              Ok(Json.obj("ok" -> true))
+            }
+          })
+      })
+  }
+
+  def deleteStore(encodedID: String) = Security.Authenticated.async {
+    implicit request =>
+      checkPermission(Group.allowedDelUser)({
+        val userInfo = Security.getUserInfo().get
+        implicit val db = userInfo.db
+        val _id = java.net.URLDecoder.decode(encodedID, "UTF-8")
+        val f = Store.deleteStore(_id)
+        val requestF =
+          for (result <- f) yield {
+            Ok(Json.obj("ok" -> (result.getDeletedCount == 1)))
+          }
+
+        requestF.recover({
+          case _: Throwable =>
+            Logger.info("recover from deleteUser error...")
+            Ok(Json.obj("ok" -> false))
+        })
+      })
+  }
+
+  def updateStore(encodedID: String) = Security.Authenticated.async(BodyParsers.parse.json) {
+    implicit request =>
+      val _id = java.net.URLDecoder.decode(encodedID, "UTF-8")
+      val userParam = request.body.validate[Store]
+
+      userParam.fold(
+        error => {
+          Future {
+            Logger.error(JsError.toJson(error).toString())
+            BadRequest(Json.obj("ok" -> false, "msg" -> JsError.toJson(error).toString()))
+          }
+        },
+        param => {
+          Logger.debug(s"update store _id=${_id}")
+          val userInfo = Security.getUserInfo().get
+          val groupID = Group.withName(userInfo.groupID)
+          implicit val db = userInfo.db
+          val f = Store.update(_id, param)
+          for (ret <- f) yield {
+            Ok(Json.obj("ok" -> (ret.getMatchedCount == 1)))
+          }
+        })
+  }
+
 }

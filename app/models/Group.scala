@@ -29,6 +29,9 @@ object Group extends Enumeration {
   val allowedNewUser = Seq(Group.Admin, Group.Owner, Group.Manager)
   val allowedDelUser = Seq(Group.Admin, Group.Owner, Group.Manager)
 
+  val allowNewStore = Seq(Group.Admin, Group.Owner)
+  val allowDelStore = Seq(Group.Admin, Group.Owner)
+  
   implicit val reads: Reads[Group.Value] = EnumUtils.enumReads(Group)
   implicit val writes: Writes[Group.Value] = EnumUtils.enumWrites
 }

@@ -23,21 +23,21 @@
                 <a aria-expanded="true" class="has-arrow"><i class="fa fa-th-large"></i> <span class="nav-label">店鋪管理</span></a>
                 <ul class="nav nav-second-level collapse">
                     <router-link tag="li"
-                                 :to="{name:'AddUser'}" active-class="active">
+                                 :to="{name:'AddStore'}" active-class="active">
                         <a><i class="fa fa-th-large"></i>
-                            <span class="nav-label"></span>新增使用者</a></router-link>
+                            <span class="nav-label"></span>新增店鋪</a></router-link>
 
                     <router-link tag="li"
-                                 :to="{name:'DelUser'}" active-class="active">
+                                 :to="{name:'DelStore'}" active-class="active">
                         <a><i class="fa fa-th-large"></i>
-                            <span class="nav-label"></span>刪除使用者</a></router-link>
+                            <span class="nav-label"></span>刪除店鋪</a></router-link>
 
                     <router-link tag="li"
-                                 :to="{name:'UpdateUser'}" active-class="active">
+                                 :to="{name:'UpdateStore'}" active-class="active">
                         <a><i class="fa fa-th-large"></i>
-                            <span class="nav-label"></span>更新使用者</a></router-link>
+                            <span class="nav-label"></span>更新店鋪</a></router-link>
                     <li v-for="store in storeList"><a><i class="fa fa-th-large"></i>
-                        <span class="nav-label">{{store.name}}</span> </a></li>
+                        <span class="nav-label">{{store._id}}</span> </a></li>
                 </ul>
             </li>
             <li v-show="companyAdmin">

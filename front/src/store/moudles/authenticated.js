@@ -45,10 +45,8 @@ const actions = {
         commit('updateAuthenticated', {authenticated:false, user:{}});
     },
     refreshStoreList: ({commit})=>{
-        console.log("refreshStoreList")
         axios.get("/Store").then((resp)=>{
             const ret = resp.data
-            console.log(ret)
             commit('updateStoreList', ret)
         }).catch((err)=>{
             alert(err)

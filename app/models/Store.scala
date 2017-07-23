@@ -10,7 +10,7 @@ import scala.concurrent.ExecutionContext.Implicits.global
 import scala.language.implicitConversions
 import org.mongodb.scala.bson._
 
-case class Store(_id: String, name: String, addr: String, phone: String)
+case class Store(_id: String, addr: String, phone: String)
 object Store {
   import org.mongodb.scala._
   import org.mongodb.scala.bson.codecs.Macros._
@@ -32,8 +32,7 @@ object Store {
       f.onFailure(errorHandler)
       f.onSuccess({
         case x: Completed =>
-          val id = Identity.getNewID(Identity.Store)
-          val defaultStore = Store(s"${id.seq}", s"${id.seq}號店", "地址", "123456789")
+          val defaultStore = Store("創始店", "地址", "123456789")
           newStore(defaultStore, ownerID)
       })
     }
@@ -41,7 +40,7 @@ object Store {
 
   import scala.concurrent._
   //Always add store to owner...
-  def newStore(store: Store, ownerID:String)(implicit db: MongoDatabase) = {
+  def newStore(store: Store, ownerID: String)(implicit db: MongoDatabase) = {
     val f = collection.insertOne(store).toFuture()
     f.onFailure(errorHandler)
     val f1 = User.addStore(ownerID, store._id)
@@ -49,10 +48,11 @@ object Store {
     Future.sequence(List(f, f1))
   }
 
-
   import org.mongodb.scala.model._
-  def upsert(_id: String, newStore: Store)(implicit db: MongoDatabase) = {
-    val f = collection.replaceOne(Filters.equal("_id", _id), newStore, UpdateOptions().upsert(true)).toFuture()
+  def update(_id: String, store: Store)(implicit db: MongoDatabase) = {
+    assert(_id == store._id)
+
+    val f = collection.replaceOne(Filters.equal("_id", _id), store, UpdateOptions().upsert(true)).toFuture()
     f.onFailure(errorHandler)
     f
   }
@@ -80,4 +80,12 @@ object Store {
     } else
       throw new Exception(s"Unknow groupID ${usr.groupID}")
   }
+
+  import org.mongodb.scala.model.Filters._
+  def deleteStore(_id: String)(implicit db: MongoDatabase) = {
+    val f = collection.deleteOne(equal("_id", _id)).toFuture()
+    f.onFailure(errorHandler("deleteStore"))
+    f
+  }
+
 }

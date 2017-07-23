@@ -3,9 +3,12 @@ import play.api._
 import play.api.mvc.Security._
 import play.api.mvc._
 import scala.concurrent._
+import models._
 
 class AuthenticatedRequest[A](val userinfo: String, request: Request[A]) extends WrappedRequest[A](request)
-case class UserInfo(id: String, name: String, groupID: String, company:String, dbName: String)
+case class UserInfo(id: String, name: String, groupID: String, company:String, dbName: String){
+  def db = MongoDB.mongoClient.getDatabase(dbName)
+}
 
 object Security {
   val idKey = "ID"

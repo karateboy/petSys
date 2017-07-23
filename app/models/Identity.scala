@@ -50,7 +50,7 @@ object Identity {
 
   val Store = "store"
   val Customer = "customer"
-  val Pet = "pet"
+  val Order = "order"
 
   def initCompanyDB(colNames: Seq[String])(implicit db: MongoDatabase) = {
     if (!colNames.contains(colName)) {
@@ -64,7 +64,7 @@ object Identity {
         if (count == 0) {
           val id1 = Identity(Store, 1)
           val id2 = Identity(Customer, 1)
-          val id3 = Identity(Pet, 1)
+          val id3 = Identity(Order, 1)
           newID(id1)
           newID(id2)
           newID(id3)

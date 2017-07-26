@@ -19,6 +19,8 @@ case class Company(_id: String, dbName: String, ownerID: String) {
       ModelHelper.waitReadyResult(f)
 
       Store.init(colNames, ownerID)
+      Customer.init(colNames)
+      Order.init(colNames)
       EventLog.init(colNames)
     }
     //Program need to wait before init complete

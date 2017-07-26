@@ -17,10 +17,36 @@
                     IN+
                 </div>
             </li>
-            <router-link tag="li" to="/" active-class="active" exact><a><i class="fa fa-th-large"></i> <span
-                    class="nav-label">儀錶板</span></a></router-link>
+            <li v-show="companyUser">
+                <a aria-expanded="true" class="has-arrow"><i class="fa fa-th-large"></i> <span
+                        class="nav-label">訂單管理</span></a>
+                <ul class="nav nav-second-level collapse">
+                    <router-link tag="li" to="/Order/New" active-class="active"><a><i class="fa fa-th-large"></i> <span
+                            class="nav-label">新增訂單</span> </a></router-link>
+                    <router-link tag="li" to="/Order/Mine" active-class="active"><a><i class="fa fa-th-large"></i> <span
+                            class="nav-label">我的訂單</span> </a></router-link>
+                    <router-link tag="li" to="/Order/Query" active-class="active"><a><i class="fa fa-th-large"></i>
+                        <span
+                                class="nav-label">查詢訂單</span> </a></router-link>
+                </ul>
+            </li>
+            <li v-show="companyUser">
+                <a aria-expanded="true" class="has-arrow"><i class="fa fa-th-large"></i> <span
+                        class="nav-label">客戶管理</span></a>
+                <ul class="nav nav-second-level collapse">
+                    <router-link tag="li"
+                                 :to="{name:'QueryCustomer'}" active-class="active">
+                        <a><i class="fa fa-th-large"></i>
+                            <span class="nav-label">查詢客戶</span> </a></router-link>
+                    <router-link tag="li"
+                                 :to="{name:'AddCustomer'}" active-class="active">
+                        <a><i class="fa fa-th-large"></i>
+                            <span class="nav-label">新增客戶</span> </a></router-link>
+                </ul>
+            </li>
             <li v-show="companyOwner">
-                <a aria-expanded="true" class="has-arrow"><i class="fa fa-th-large"></i> <span class="nav-label">店鋪管理</span></a>
+                <a aria-expanded="true" class="has-arrow"><i class="fa fa-th-large"></i> <span
+                        class="nav-label">店鋪管理</span></a>
                 <ul class="nav nav-second-level collapse">
                     <router-link tag="li"
                                  :to="{name:'AddStore'}" active-class="active">
@@ -60,15 +86,20 @@
                             <span class="nav-label"></span>更新人員資料</a></router-link>
                 </ul>
             </li>
-            <li v-if="companyClerk">
-                <router-link tag="li"
-                             :to="{name:'UpdateUser'}" active-class="active">
-                    <a><i class="fa fa-th-large"></i>
-                        <span class="nav-label"></span>更新個人資料</a></router-link>
+            <li v-show="companyClerk">
+                <a><i class="fa fa-th-large"></i> <span class="nav-label">個人帳戶管理</span> <span
+                        class="fa arrow"></span></a>
+                <ul class="nav nav-second-level collapse">
+                    <router-link tag="li"
+                                 :to="{name:'UpdateUser'}" active-class="active">
+                        <a><i class="fa fa-th-large"></i>
+                            <span class="nav-label"></span>更新帳戶資料</a></router-link>
+                </ul>
             </li>
 
             <li v-show="sysAdmin">
-                <a aria-expanded="true" class="has-arrow"><i class="fa fa-th-large"></i> <span class="nav-label">系統管理</span></a>
+                <a aria-expanded="true" class="has-arrow"><i class="fa fa-th-large"></i> <span
+                        class="nav-label">系統管理</span></a>
                 <ul class="nav nav-second-level collapse">
                 </ul>
             </li>
@@ -79,10 +110,11 @@
 
 </style>
 <script>
-    import {mapGetters, mapState } from 'vuex'
+    import {mapGetters, mapState} from 'vuex'
     import axios from 'axios'
-    export default{
-        data(){
+
+    export default {
+        data() {
             return {
                 groupInfoMap: {}
             }
@@ -93,29 +125,18 @@
                 for (let groupInfo of ret) {
                     this.groupInfoMap[groupInfo.id] = groupInfo.name
                 }
-            }).catch((err)=>{
+            }).catch((err) => {
                 alert(err)
             })
         },
         computed: {
-            ...mapGetters(['user', 'storeList']),
-            groupName(){
-                if(this.user.groupID && this.groupInfoMap[this.user.groupID])
+            ...mapGetters(['user', 'storeList', 'companyOwner',
+                'companyAdmin', 'companyClerk', 'companyUser', 'sysAdmin']),
+            groupName() {
+                if (this.user.groupID && this.groupInfoMap[this.user.groupID])
                     return this.groupInfoMap[this.user.groupID]
                 else
                     return ""
-            },
-            companyOwner(){
-                return this.user.groupID === 'Owner'
-            },
-            companyAdmin(){
-                return this.user.groupID === 'Manager' || this.user.groupID === 'Owner'
-            },
-            companyClerk(){
-              return this.user.groupID === 'Clerk'
-            },
-            sysAdmin(){
-                return this.user.groupID === 'Admin'
             }
         }
     }

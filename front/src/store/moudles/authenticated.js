@@ -18,7 +18,23 @@ const getters = {
     },
     storeList: state =>{
         return state.storeList
+    },
+    companyOwner: state =>{
+        return state.user.groupID === 'Owner'
+    },
+    companyAdmin: state =>{
+        return state.user.groupID === 'Manager' || state.user.groupID === 'Owner'
+    },
+    companyClerk: state=> {
+        return state.user.groupID === 'Clerk'
+    },
+    companyUser: state => {
+        return state.user.groupID === 'Manager' || state.user.groupID === 'Owner' || state.user.groupID === 'Clerk'
+    },
+    sysAdmin: state=> {
+        return state.user.groupID === 'Admin'
     }
+
 }
 
 const mutations = {
@@ -27,10 +43,8 @@ const mutations = {
         state.user = JSON.parse(JSON.stringify(payload.user))
         state.storeList.splice(0, state.storeList.length)
         for(let store of payload.storeList){
-            console.log(store)
             state.storeList.push(store)
         }
-        console.log(state.storeList)
     },
     updateStoreList: (state, payload)=>{
         state.storeList.splice(0, state.storeList.length)

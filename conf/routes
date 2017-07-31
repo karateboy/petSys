@@ -27,7 +27,8 @@ DELETE   /Store/:id                    controllers.Application.deleteStore(id)
 GET      /GroupInfo                    controllers.Application.getGroupInfoList
 GET      /Group                        controllers.Application.getGroupInfoListBelow
 
-
+POST     /Customer                     controllers.Application.newCustomer
+PUT		 /Customer/:id				   controllers.Application.updateCustomer(id)
 
 #Report
 

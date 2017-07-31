@@ -1,7 +1,7 @@
 <template>
     <div>
         <br>
-        <user :user='emptyUser()' :isNew='true'></user>
+        <customer :isNew='true'></customer>
     </div>
 </template>
 <style>
@@ -11,29 +11,22 @@
 
 </style>
 <script>
-    import User from './User.vue'
+    import Customer from './Customer.vue'
     import {mapGetters} from 'vuex'
+
     export default{
         data(){
             return {
-                msg: 'hello vue'
             }
         },
         computed:{
             ...mapGetters(['user'])
         },
         methods:{
-          emptyUser(){
-              return {
-                  _id:"",
-                  storeList: JSON.parse(JSON.stringify(this.user.storeList)),
-                  company: this.user.company,
-                  groupID:"Clerk"
-              }
-          }
+
         },
         components: {
-            User
+            Customer
         }
     }
 </script>

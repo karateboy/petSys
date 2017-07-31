@@ -1,62 +1,126 @@
 <template>
     <div>
+        <div class="alert alert-info" role="alert">
+            <strong class="text-danger">*</strong> 必須填寫
+        </div>
         <div class="form-horizontal">
             <div class="form-group">
-                <label class="col-lg-2 control-label">姓名:</label>
+                <label class="col-lg-1 control-label"><strong class="text-danger">*</strong>姓名:</label>
                 <div class="col-lg-5">
-                    <input type="text" class="form-control"
+                    <input type="text" placeholder="王小白" class="form-control"
                            required v-model="customer.name">
                 </div>
             </div>
-            <div class="form-group"><label class="col-lg-1 control-label">生日:</label>
-                <div class='col-lg-4'>
-                    <datepicker v-model="bdate" language="zh"
-                                format="yyyy-MM-dd"></datepicker>
-                </div>
-            </div>
             <div class="form-group">
-                <label class="col-lg-2 control-label">地址:</label>
-                <div class="col-lg-5">
-                    <input type="text" class="form-control"
-                           required v-model="customer.addr">
-                </div>
-            </div>
-
-            <div class="form-group">
-                <label class="col-lg-2 control-label">e-mail</label>
-                <div class="col-lg-5">
-                    <input type="email" class="form-control"
-                           required v-model="customer.email">
-                </div>
-            </div>
-            <div class="form-group">
-                <label class="col-lg-2 control-label">行動電話</label>
+                <label class="col-lg-1 control-label"><strong class="text-danger">*</strong>行動電話</label>
                 <div class="col-lg-5">
                     <input name='phone' type="tel" placeholder="電話號碼" class="form-control"
                            required v-model="customer.phone">
                 </div>
             </div>
-            <div class="form-group">
-                <label class="col-lg-2 control-label">群組:</label>
-                <div class="col-lg-7">
-                    <div class="btn-group" data-toggle="buttons">
-                        <label class="btn btn-outline btn-primary dim"
-                               v-for="group in groupInfoList"
-                               @click="user.groupID=group.id"
-                               :class="{active: user.groupID==group.id }">
-                            <input type="radio">{{ group.name }} </label>
-                    </div>
+            <div class="form-group"><label class="col-lg-1 control-label">生日:</label>
+                <div class='col-lg-4'>
+                    <datepicker v-model="bdate" language="zh"
+                                format="MM-dd"></datepicker>
                 </div>
+            </div>
+            <div class="form-group">
+                <label class="col-lg-1 control-label">地址:</label>
+                <div class="col-lg-5">
+                    <input type="text" placeholder="地址" class="form-control"
+                           required v-model="customer.addr">
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-lg-1 control-label">電子信箱:</label>
+                <div class="col-lg-5">
+                    <input type="email" placeholder="電子信箱" class="form-control"
+                           required v-model="customer.email">
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label class="col-lg-1 control-label">臉書帳號:</label>
+                <div class="col-lg-5">
+                    <input type="email" placeholder="臉書帳號" class="form-control"
+                           required v-model="customer.facebook">
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-lg-1 control-label">Line:</label>
+                <div class="col-lg-5">
+                    <input type="email" placeholder="Line帳號" class="form-control"
+                           required v-model="customer.line">
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-lg-1 control-label">附註:</label>
+                <div class="col-lg-5">
+                    <input type="email" placeholder="附註:" class="form-control"
+                           required v-model="customer.note">
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-lg-1 control-label">寵物資訊:</label>
+                <div class="col-lg-8">
+                    <table class="table table-bordered">
+                        <thead>
+                        <tr>
+                            <th>名字</th>
+                            <th>品種</th>
+                            <th>顏色</th>
+                            <th>體重</th>
+                            <th>生日</th>
+                            <th>習性</th>
+                            <th>常去獸醫院</th>
+                            <th>晶片</th>
+                            <th>疫苗</th>
+                            <th></th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr v-for="(pet, idx) in customer.petList">
+                            <td>{{pet.name}}</td>
+                            <td>{{pet.breed}}</td>
+                            <td>{{pet.color}}</td>
+                            <td>{{pet.weight}}</td>
+                            <td>{{displayPetBdate(pet)}}</td>
+                            <td>{{pet.habit}}</td>
+                            <td>{{pet.hospital}}</td>
+                            <td>{{displayPetChip(pet)}}</td>
+                            <td>{{pet.vacineList}}</td>
+                            <td>
+                                <button class="btn btn-danger" @click="delPet(idx)">
+                                    <i class="fa fa-trash" aria-hidden="true"></i>&nbsp;刪除
+                                </button>
+                                <button class="btn btn-warning" @click="editPet(idx)" data-toggle="modal"
+                                        data-target="#petModal">
+                                    <i class="fa fa-pencil" aria-hidden="true"></i>&nbsp;更新
+                                </button>
+                            </td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#petModal"
+                        @click="newPet=true;showPetModal = true">
+                    <i class="fa fa-plus" aria-hidden="true"></i>&nbsp;新增寵物
+                </button>
+                <pet v-if="showPetModal" :isNew='newPet' :index='petIndex'
+                     :petParam='petParam'
+                     @addPet='addPetHandler'
+                     @updatePet='updatePetHandler'
+                ></pet>
             </div>
 
             <div class="form-group" v-if='isNew'>
                 <div class="col-lg-offset-2 col-lg-10">
-                    <button class="btn btn-primary" @click.prevent="newCustomer">新增</button>
+                    <button class="btn btn-primary" @click.prevent="newCustomer">新增顧客</button>
                 </div>
             </div>
             <div class="form-group" v-else>
                 <div class="col-lg-offset-2 col-lg-10">
-                    <button class="btn btn-primary" @click.prevent="updateCustomer">更新</button>
+                    <button class="btn btn-primary" @click.prevent="updateCustomer">更新顧客</button>
                 </div>
             </div>
         </div>
@@ -71,14 +135,14 @@
     import axios from 'axios'
     import moment from 'moment'
     import Datepicker from 'vuejs-datepicker'
+    import Pet from './Pet.vue'
 
     import {mapActions, mapGetters} from 'vuex'
 
     export default {
         props: {
-            customer: {
-                type: Object,
-                required: true
+            customerParam: {
+                type: Object
             },
             isNew: {
                 type: Boolean,
@@ -88,7 +152,24 @@
         mounted: function () {
         },
         data() {
+            let customer
+            if(this.isNew){
+                customer = {
+                    _id: 0,
+                    petList:[],
+                    orderList:[],
+                    firstTime: 0,
+                    lastTime:0
+                }
+            }else{
+                customer = JSON.parse(JSON.stringify(this.customerParam))
+            }
+
             return {
+                customer,
+                newPet: true,
+                petIndex: 0,
+                showPetModal: false
             }
         },
         computed: {
@@ -97,20 +178,28 @@
                     if (this.customer.bdate)
                         return new Date(this.customer.bdate)
                     else {
-                        const bdate = moment("1990-1-1").toDate()
-                        this.customer.bdate = bdate.getTime()
-                        return bdate
+                        return null
                     }
                 },
                 // setter
                 set: function (newValue) {
                     this.customer.bdate = newValue.getTime()
                 }
+            },
+            petParam: function(){
+                if(this.newPet)
+                    return null
+                else
+                    return this.customer.petList[this.petIndex]
             }
+        },
+        mounted: function(){
+            $('#petModal').on('hidden.bs.modal', function (e) {
+                this.showPetModal = false
+            })
         },
         methods: {
             newCustomer() {
-
                 axios.post('/Customer', this.customer).then((resp) => {
                     const ret = resp.data
                     if (ret.ok)
@@ -122,7 +211,7 @@
                 })
             },
             updateCustomer() {
-                const url = `/Customer/${encodeURIComponent(this.customer._id)}`
+                const url = `/Customer/${this.customer._id}`
                 axios.put(url, this.user).then((resp) => {
                     const ret = resp.data
                     if (ret.ok) {
@@ -133,8 +222,50 @@
                 }).catch((err) => {
                     alert(err)
                 })
+            },
+            delPet(idx){
+                this.customer.petList.splice(idx, 1)
+            },
+            editPet(idx){
+                this.showPetModal = true
+                this.newPet = false
+                this.petIndex = idx
+            },
+            displayPetRecord(pet) {
+                return pet.records.map(record => {
+                    const expr = `${moment().milliseconds(record.time).fromNow()}:${record.weight}公斤`
+                    return expr
+                }).mkStr('\n')
+            },
+            displayPetBdate(pet) {
+                if (pet.bdate) {
+                    return moment().millisecond(pet.bdate).format('YYYY-MM-DD')
+                } else
+                    return "-"
+            },
+            displayPetChip(pet) {
+                if (pet.chip) {
+                    return moment().millisecond(pet.chip).format('YYYY-MM-DD')
+                } else
+                    return "-"
+            },
+            displayPetVacine(pet) {
+                return pet.vacineList.map(vacine => {
+                    const expr = `${moment().milliseconds(vacine.time).fromNow()}: ${vacine.name}`
+                    return expr
+                }).mkStr('\n')
+            },
+            addPetHandler(payload) {
+                this.customer.petList.push(JSON.parse(JSON.stringify(payload)))
+            },
+            updatePetHandler(payload) {
+                const index = payload.index
+                this.customer.petList.splice(index, 1, JSON.parse(JSON.stringify(payload.pet)))
             }
         },
-        components: {}
+        components: {
+            Pet,
+            Datepicker
+        }
     }
 </script>

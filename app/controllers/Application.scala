@@ -304,4 +304,51 @@ object Application extends Controller {
         })
   }
 
+  def newCustomer = Security.Authenticated.async(BodyParsers.parse.json) {
+    implicit request =>
+      import Customer._
+
+      val customerParam = request.body.validate[Customer]
+      customerParam.fold(
+        error => {
+          Future {
+            Logger.error(JsError.toJson(error).toString())
+            BadRequest(Json.obj("ok" -> false, "msg" -> JsError.toJson(error).toString()))
+          }
+        },
+        customer => {
+          Logger.debug(s"new customer")
+          val userInfo = Security.getUserInfo().get
+          val groupID = Group.withName(userInfo.groupID)
+          implicit val db = userInfo.db
+          val f = Customer.newCustomer(customer)
+          for (ret <- f) yield {
+            Ok(Json.obj("ok" -> true))
+          }
+        })
+  }
+
+  def updateCustomer(_id:String) = Security.Authenticated.async(BodyParsers.parse.json) {
+    implicit request =>
+      import Customer._
+
+      val customerParam = request.body.validate[Customer]
+      customerParam.fold(
+        error => {
+          Future {
+            Logger.error(JsError.toJson(error).toString())
+            BadRequest(Json.obj("ok" -> false, "msg" -> JsError.toJson(error).toString()))
+          }
+        },
+        customer => {
+          Logger.debug(s"update customer")
+          val userInfo = Security.getUserInfo().get
+          val groupID = Group.withName(userInfo.groupID)
+          implicit val db = userInfo.db
+          val f = Customer.update(_id, customer)
+          for (ret <- f) yield {
+            Ok(Json.obj("ok" -> (ret.getMatchedCount == 1)))
+          }
+        })
+  }
 }

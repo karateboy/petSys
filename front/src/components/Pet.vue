@@ -1,16 +1,4 @@
 <template>
-    <bootstrap-modal ref="petModal" :needHeader="false" :needFooter="false" size="large">
-        <div slot="title">
-            {{title}}
-        </div>
-        <div slot="body">
-            Your body here
-        </div>
-        <div slot="footer">
-            Your footer here
-        </div>
-    </bootstrap-modal>
-
     <div class="modal inmodal" tabindex="-1" role="dialog" aria-hidden="true">
         <div class="modal-dialog modal-lg">
             <div class="modal-content animated fadeIn">
@@ -51,7 +39,7 @@
                         </div>
                         <div class="form-group"><label class="col-lg-2 control-label">生日:</label>
                             <div class='col-lg-4'>
-                                <datepicker v-model="pet.bdate" language="zh"
+                                <datepicker v-model="bdate" language="zh"
                                             format="yyyy-MM-dd"></datepicker>
                             </div>
                         </div>
@@ -70,7 +58,7 @@
                         <div class="form-group">
                             <label class="col-lg-2 control-label">晶片植入時間:</label>
                             <div class='col-lg-4'>
-                                <datepicker v-model="pet.chip" language="zh"
+                                <datepicker v-model="chip" language="zh"
                                             format="yyyy-MM-dd"></datepicker>
                             </div>
                         </div>
@@ -104,7 +92,6 @@
 
 </style>
 <script>
-
     import Datepicker from 'vuejs-datepicker'
 
     export default {
@@ -118,32 +105,16 @@
                 required: true
             },
             petParam: {
-                type: Object
+                type: Object,
+                required: true
             }
         },
         data() {
             return {
-                pet: {
-                    name: "",
-                    breed: "",
-                    records: []
-                }
+                pet: JSON.parse(JSON.stringify(this.petParam))
             }
         },
         mounted: function(){
-            console.log("mounted")
-            if (this.isNew)
-                console.log("isNew=true")
-            else {
-                Object.assign(this.pet, this.petParam)
-
-                if (this.pet.bdate)
-                    this.pet.bdate = new Date(this.pet.bdate)
-
-                if (this.pet.chip)
-                    this.pet.chip = new Date(this.pet.chip)
-            }
-
         },
         computed: {
             title: function () {
@@ -159,23 +130,36 @@
                     return false
 
                 return true
+            },
+            bdate: {
+                get: function(){
+                    if (this.pet.bdate)
+                        return new Date(this.pet.bdate)
+                    else
+                        return null
+                },
+                set: function(val){
+                    this.pet.bdate = val.getTime()
+                }
+            },
+            chip: {
+                get: function(){
+                    if (this.pet.chip)
+                        return new Date(this.pet.chip)
+                    else
+                        return null
+                },
+                set: function(val){
+                    this.pet.chip = val.getTime()
+                }
             }
         },
         methods: {
-            changeDateToMillis(pet) {
-                if (pet.bdate)
-                    pet.bdate = pet.bdate.getTime()
-
-                if (pet.chip)
-                    pet.chip = pet.chip.getTime()
-            },
             addPet() {
-                this.changeDateToMillis(this.pet)
                 this.$emit('addPet', Object.assign({}, this.pet))
                 this.pet
             },
             updatePet() {
-                this.changeDateToMillis(this.pet)
                 this.$emit('updatePet', {
                     index: this.index,
                     pet:  Object.assign({}, this.pet)

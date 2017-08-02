@@ -328,7 +328,7 @@ object Application extends Controller {
         })
   }
 
-  def updateCustomer(_id:String) = Security.Authenticated.async(BodyParsers.parse.json) {
+  def updateCustomer(_id: String) = Security.Authenticated.async(BodyParsers.parse.json) {
     implicit request =>
       import Customer._
 
@@ -351,4 +351,47 @@ object Application extends Controller {
           }
         })
   }
+
+  import Customer._
+  def queryCustomer(skip: Int, limit: Int) = Security.Authenticated.async(BodyParsers.parse.json) {
+    implicit request =>
+      implicit val paramRead = Json.reads[QueryCustomerParam]
+      val result = request.body.validate[QueryCustomerParam]
+      result.fold(
+        err =>
+          Future {
+            Logger.error(JsError.toJson(err).toString())
+            BadRequest(JsError.toJson(err).toString())
+          },
+        param => {
+          val userInfo = Security.getUserInfo().get
+          val groupID = Group.withName(userInfo.groupID)
+          implicit val db = userInfo.db
+
+          val f = Customer.query(param)(skip, limit)
+          for (customers <- f)
+            yield Ok(Json.toJson(customers))
+        })
+  }
+  def queryCustomerCount() = Security.Authenticated.async(BodyParsers.parse.json) {
+    implicit request =>
+      implicit val paramRead = Json.reads[QueryCustomerParam]
+      val result = request.body.validate[QueryCustomerParam]
+      result.fold(
+        err =>
+          Future {
+            Logger.error(JsError.toJson(err).toString())
+            BadRequest(JsError.toJson(err).toString())
+          },
+        param => {
+          val userInfo = Security.getUserInfo().get
+          val groupID = Group.withName(userInfo.groupID)
+          implicit val db = userInfo.db
+
+          val f = Customer.count(param)
+          for (count <- f)
+            yield Ok(Json.toJson(count))
+        })
+  }
+
 }

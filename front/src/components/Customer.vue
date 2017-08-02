@@ -103,13 +103,15 @@
                     </table>
                 </div>
                 <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#petModal"
-                        @click="newPet=true;showPetModal = true">
+                        data-backdrop="static" data-keyboard="false"
+                        @click="addPet">
                     <i class="fa fa-plus" aria-hidden="true"></i>&nbsp;新增寵物
                 </button>
-                <pet v-if="showPetModal" :isNew='newPet' :index='petIndex'
+                <pet v-if="showPetModal" id="petModal" :isNew='newPet' :index='petIndex'
                      :petParam='petParam'
                      @addPet='addPetHandler'
                      @updatePet='updatePetHandler'
+                     @cancelPet="cancelPetHandler"
                 ></pet>
             </div>
 
@@ -139,6 +141,14 @@
 
     import {mapActions, mapGetters} from 'vuex'
 
+    const emptyCustomer = {
+        _id: 0,
+        petList: [],
+        orderList: [],
+        firstTime: 0,
+        lastTime: 0
+    }
+
     export default {
         props: {
             customerParam: {
@@ -149,28 +159,16 @@
                 required: true
             }
         },
-        mounted: function () {
-        },
         data() {
-            let customer
-            if(this.isNew){
-                customer = {
-                    _id: 0,
-                    petList:[],
-                    orderList:[],
-                    firstTime: 0,
-                    lastTime:0
-                }
-            }else{
-                customer = JSON.parse(JSON.stringify(this.customerParam))
-            }
-
             return {
-                customer,
+                customer:this.customerParam,
                 newPet: true,
                 petIndex: 0,
                 showPetModal: false
             }
+        },
+        mounted: function(){
+            console.log("mounted")
         },
         computed: {
             bdate: {
@@ -186,25 +184,28 @@
                     this.customer.bdate = newValue.getTime()
                 }
             },
-            petParam: function(){
-                if(this.newPet)
-                    return null
+            petParam: function () {
+                const emptyPet = {
+                    name: "",
+                    breed: "",
+                    records: []
+                }
+                if (this.newPet)
+                    return emptyPet
                 else
                     return this.customer.petList[this.petIndex]
             }
         },
-        mounted: function(){
-            $('#petModal').on('hidden.bs.modal', function (e) {
-                this.showPetModal = false
-            })
+        mounted: function () {
         },
         methods: {
             newCustomer() {
                 axios.post('/Customer', this.customer).then((resp) => {
                     const ret = resp.data
-                    if (ret.ok)
+                    if (ret.ok) {
                         alert("成功")
-                    else
+                        this.customer = JSON.parse(JSON.stringify(emptyCustomer))
+                    } else
                         alert("失敗:" + ret.msg)
                 }).catch((err) => {
                     alert(err)
@@ -223,10 +224,14 @@
                     alert(err)
                 })
             },
-            delPet(idx){
+            addPet() {
+                this.showPetModal = true
+                this.newPet = true
+            },
+            delPet(idx) {
                 this.customer.petList.splice(idx, 1)
             },
-            editPet(idx){
+            editPet(idx) {
                 this.showPetModal = true
                 this.newPet = false
                 this.petIndex = idx
@@ -239,13 +244,19 @@
             },
             displayPetBdate(pet) {
                 if (pet.bdate) {
-                    return moment().millisecond(pet.bdate).format('YYYY-MM-DD')
+                    const mm = moment(pet.bdate).locale("zh_tw")
+                    const dateStr = mm.format('YYYY-MM-DD')
+                    const afterStr = mm.fromNow()
+                    return dateStr + " (" + afterStr + ")";
                 } else
                     return "-"
             },
             displayPetChip(pet) {
                 if (pet.chip) {
-                    return moment().millisecond(pet.chip).format('YYYY-MM-DD')
+                    const mm = moment(pet.chip).locale("zh_tw")
+                    const dateStr = mm.format('YYYY-MM-DD')
+                    const afterStr = mm.fromNow()
+                    return dateStr + " (" + afterStr + ")";
                 } else
                     return "-"
             },
@@ -256,11 +267,16 @@
                 }).mkStr('\n')
             },
             addPetHandler(payload) {
+                this.showPetModal = false
                 this.customer.petList.push(JSON.parse(JSON.stringify(payload)))
             },
             updatePetHandler(payload) {
+                this.showPetModal = false
                 const index = payload.index
                 this.customer.petList.splice(index, 1, JSON.parse(JSON.stringify(payload.pet)))
+            },
+            cancelPetHandler() {
+                this.showPetModal = false
             }
         },
         components: {

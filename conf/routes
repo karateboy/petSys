@@ -29,6 +29,8 @@ GET      /Group                        controllers.Application.getGroupInfoListB
 
 POST     /Customer                     controllers.Application.newCustomer
 PUT		 /Customer/:id				   controllers.Application.updateCustomer(id)
+POST     /QueryCustomer/:skip/:limit   controllers.Application.queryCustomer(skip: Int, limit: Int)
+POST     /QueryCustomer/count          controllers.Application.queryCustomerCount()
 
 #Report
 

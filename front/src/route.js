@@ -18,6 +18,7 @@ import QueryOrder from "./components/QueryOrder.vue"
 //Customer
 import CustomerManagement from './components/CustomerManagement.vue'
 import AddCustomer from './components/AddCustomer.vue'
+import QueryCustomer from './components/QueryCustomer.vue'
 
 export const routes = [
     {path: '/', component: Dashboard, name: 'Dashboard'},
@@ -34,7 +35,7 @@ export const routes = [
         path: '/Customer', component: CustomerManagement, name: 'CustomerManagement',
         children: [
             {path: 'Add', component:AddCustomer, name:'AddCustomer' },
-            {path: 'Query', component: QueryOrder, name:'QueryCustomer'}
+            {path: 'Query', component: QueryCustomer, name:'QueryCustomer'}
         ]
     },
     {

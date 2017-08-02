@@ -1,12 +1,12 @@
 <template>
     <div>
         <br>
-        <customer :isNew='true'></customer>
+        <customer :isNew='true' :customerParam="emptyCustomer()"></customer>
     </div>
 </template>
 <style>
-    body{
-        background-color:#ff0000;
+    body {
+        background-color: #ff0000;
     }
 
 </style>
@@ -14,16 +14,23 @@
     import Customer from './Customer.vue'
     import {mapGetters} from 'vuex'
 
-    export default{
-        data(){
-            return {
-            }
+    export default {
+        data() {
+            return {}
         },
-        computed:{
+        computed: {
             ...mapGetters(['user'])
         },
-        methods:{
-
+        methods: {
+            emptyCustomer:() => {
+                return {
+                    _id: 0,
+                    petList: [],
+                    orderList: [],
+                    firstTime: 0,
+                    lastTime: 0
+                }
+            }
         },
         components: {
             Customer

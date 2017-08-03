@@ -10,8 +10,8 @@ import scala.concurrent.ExecutionContext.Implicits.global
 import scala.language.implicitConversions
 import org.mongodb.scala.bson._
 
-case class Order(var _id: Long, customer: String, pets: Seq[String], store: String, var time: Long,
-                 note: Option[String], active: Boolean, clerks: Seq[String])
+case class Order(var _id: Long, customerID: Int, pet: String, storeID: Long, services:Seq[String],                 
+                 note: String, workers: Seq[String], var time: Long, active: Boolean)
 object Order {
   import org.mongodb.scala._
   import org.mongodb.scala.bson.codecs.Macros._
@@ -45,6 +45,7 @@ object Order {
   def newOrder(order: Order)(implicit db: MongoDatabase) = {
     val id = Identity.getNewID(Identity.Order)
     order._id = id.seq
+    order.time = DateTime.now().getMillis
     val f = collection.insertOne(order).toFuture()
     f.onFailure(errorHandler)
     f

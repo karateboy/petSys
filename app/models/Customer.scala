@@ -12,7 +12,7 @@ import org.mongodb.scala.bson._
 
 case class Pet(name: String, breed: String, color: Option[String], bdate: Option[Long],
                habit: Option[String], hospital: Option[String], chip: Option[Long], vacineList: Option[String])
-case class Customer(var _id: Long, name: String, bdate: Option[Long], addr: Option[String], phone: Option[String],
+case class Customer(var _id: Long, name: String, bdate: Option[Long], addr: Option[String], phone: String,
                     email: Option[String], facebook: Option[String], line: Option[String], note: Option[String], petList: Seq[Pet], orderList: Seq[Long],
                     var firstTime: Long, var lastTime: Long)
 
@@ -40,8 +40,8 @@ object Customer {
       val f = db.createCollection(colName).toFuture()
       f.onFailure(errorHandler)
       f.onSuccess({
-        case x: Completed =>
-          collection.createIndex(Indexes.ascending("name"))
+        case x: Completed =>          
+          collection.createIndex(Indexes.ascending("name"), new IndexOptions().unique(true))
           collection.createIndex(Indexes.ascending("phone"))
           collection.createIndex(Indexes.ascending("line"))
           collection.createIndex(Indexes.descending("lastTime"))
@@ -61,8 +61,15 @@ object Customer {
     f
   }
 
+  def isCustomerExist(phone:String)(implicit db: MongoDatabase) = {
+    val f = collection.count(Filters.eq("phone", phone)).toFuture()
+    f.onFailure(errorHandler)
+    for(ret <-f)
+      yield ret != 0
+  }
+  
   import org.mongodb.scala.model._
-  def update(_id: String, customer: Customer)(implicit db: MongoDatabase) = {
+  def update(_id: Long, customer: Customer)(implicit db: MongoDatabase) = {
     assert(_id == customer._id)
     customer.lastTime = DateTime.now().getMillis
     val f = collection.replaceOne(Filters.equal("_id", _id), customer, UpdateOptions().upsert(true)).toFuture()
@@ -130,4 +137,17 @@ object Customer {
       yield records 
   }
 
+  def getCustomer(_id:Long)(implicit db: MongoDatabase) = {
+    import org.mongodb.scala.model.Filters._
+    import org.mongodb.scala.model._
+
+
+    val f = collection.find(Filters.eq("_id", _id)).first().toFuture()
+    f.onFailure {
+      errorHandler
+    }
+    for (records <- f)
+      yield records 
+  }
+ 
 }

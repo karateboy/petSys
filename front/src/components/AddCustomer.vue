@@ -1,7 +1,7 @@
 <template>
     <div>
         <br>
-        <customer :isNew='true' :customerParam="emptyCustomer()"></customer>
+        <customer></customer>
     </div>
 </template>
 <style>
@@ -18,19 +18,8 @@
         data() {
             return {}
         },
-        computed: {
-            ...mapGetters(['user'])
-        },
-        methods: {
-            emptyCustomer:() => {
-                return {
-                    _id: 0,
-                    petList: [],
-                    orderList: [],
-                    firstTime: 0,
-                    lastTime: 0
-                }
-            }
+        mounted: function(){
+            this.$store.dispatch('emptyCustomer')
         },
         components: {
             Customer

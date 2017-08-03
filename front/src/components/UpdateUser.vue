@@ -15,7 +15,7 @@
             </div>
         </div>
         <div v-if='selectedUser'>
-            <user :user='selectedUser' :isNew='false'></user>
+            <user :user='selectedUser' :isNew='false' @userUpdated="refresh()"></user>
         </div>
     </div>
 </template>

@@ -10,7 +10,7 @@ import scala.concurrent.ExecutionContext.Implicits.global
 import scala.language.implicitConversions
 import org.mongodb.scala.bson._
 
-case class Store(_id: String, addr: String, phone: String)
+case class Store(var _id: Long, name:String, addr: String, phone: String)
 object Store {
   import org.mongodb.scala._
   import org.mongodb.scala.bson.codecs.Macros._
@@ -32,7 +32,7 @@ object Store {
       f.onFailure(errorHandler)
       f.onSuccess({
         case x: Completed =>
-          val defaultStore = Store("創始店", "地址", "123456789")
+          val defaultStore = Store(0, "創始店", "地址", "123456789")
           newStore(defaultStore, ownerID)
       })
     }
@@ -41,6 +41,8 @@ object Store {
   import scala.concurrent._
   //Always add store to owner...
   def newStore(store: Store, ownerID: String)(implicit db: MongoDatabase) = {
+    val storeID = Identity.getNewID(Identity.Store)
+    store._id = storeID.seq
     val f = collection.insertOne(store).toFuture()
     f.onFailure(errorHandler)
     val f1 = User.addStore(ownerID, store._id)
@@ -49,10 +51,10 @@ object Store {
   }
 
   import org.mongodb.scala.model._
-  def update(_id: String, store: Store)(implicit db: MongoDatabase) = {
+  def update(_id: Long, store: Store)(implicit db: MongoDatabase) = {
     assert(_id == store._id)
 
-    val f = collection.replaceOne(Filters.equal("_id", _id), store, UpdateOptions().upsert(true)).toFuture()
+    val f = collection.replaceOne(Filters.equal("_id", _id), store).toFuture()
     f.onFailure(errorHandler)
     f
   }
@@ -65,7 +67,7 @@ object Store {
 
   def getAllStores(implicit db: MongoDatabase) = getStoreList(0, 1000)
 
-  def getStoreList(storeIDs: Seq[String])(implicit db: MongoDatabase) = {
+  def getStoreList(storeIDs: Seq[Long])(implicit db: MongoDatabase) = {
     val f = collection.find(Filters.in("_id", storeIDs)).toFuture()
     f.onFailure(errorHandler)
     f
@@ -82,7 +84,7 @@ object Store {
   }
 
   import org.mongodb.scala.model.Filters._
-  def deleteStore(_id: String)(implicit db: MongoDatabase) = {
+  def deleteStore(_id: Long)(implicit db: MongoDatabase) = {
     val f = collection.deleteOne(equal("_id", _id)).toFuture()
     f.onFailure(errorHandler("deleteStore"))
     f

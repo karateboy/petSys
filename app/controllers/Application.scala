@@ -15,6 +15,47 @@ object Application extends Controller {
 
   import models.User._
 
+  def newCompanyOwner = Action.async(BodyParsers.parse.json) {
+    implicit request =>
+      implicit val reads = Json.reads[User]
+      val newUserParam = request.body.validate[User]
+
+      newUserParam.fold(
+        error => {
+          Logger.error("bad param...")
+          Logger.error(JsError.toJson(error).toString())
+          Future { BadRequest(Json.obj("ok" -> false, "msg" -> JsError.toJson(error).toString())) }
+        },
+        param => {
+          Logger.debug("new User")
+          val groupID = Group.withName(param.groupID)
+          val newUser = buildCompanyUser(company = param.company,
+            name = param.name,
+            password = param.password,
+            phone = param.phone,
+            email = param.email,
+            groupID = groupID,
+            storeList = param.storeList)
+
+          val f = User.newCompanyOwner(newUser)
+          f.onFailure(errorHandler)
+
+          f.recover({
+            case ex: Throwable =>
+              Future {
+                Logger.error("newUser failed", ex)
+                Ok(Json.obj("ok" -> false, "msg" -> "使用者登入ID重複!"))
+
+              }
+          })
+
+          for (result <- f) yield {
+            Logger.info("add new user")
+            Ok(Json.obj("ok" -> true))
+          }
+        })
+  }
+
   def newUser = Security.Authenticated.async(BodyParsers.parse.json) {
     implicit request =>
       implicit val reads = Json.reads[User]
@@ -133,6 +174,16 @@ object Application extends Controller {
             }
             Ok(Json.toJson(filterdUser))
         }
+      }
+  }
+
+  def getStoreClerkList(storeID: Long) = Security.Authenticated.async {
+    implicit request =>
+      val userInfo = Security.getUserInfo().get
+      val company = userInfo.company
+      val userF = User.getCompanyStoreUsers(company, storeID)
+      for (users <- userF) yield {
+        Ok(Json.toJson(users))
       }
   }
 
@@ -260,12 +311,20 @@ object Application extends Controller {
       })
   }
 
-  def deleteStore(encodedID: String) = Security.Authenticated.async {
+  def deleteStore(_id: Long) = Security.Authenticated.async {
     implicit request =>
       checkPermission(Group.allowedDelUser)({
         val userInfo = Security.getUserInfo().get
         implicit val db = userInfo.db
-        val _id = java.net.URLDecoder.decode(encodedID, "UTF-8")
+        val companyUserListF = User.getCompanyUsers(userInfo.company)(0, 1000)
+        val companyUserList = ModelHelper.waitReadyResult(companyUserListF)
+
+        val updateF = companyUserList map {
+          usr =>
+            User.removeStore(usr._id, _id)
+        }
+        ModelHelper.waitReadyResult(Future.sequence(updateF))
+
         val f = Store.deleteStore(_id)
         val requestF =
           for (result <- f) yield {
@@ -280,9 +339,8 @@ object Application extends Controller {
       })
   }
 
-  def updateStore(encodedID: String) = Security.Authenticated.async(BodyParsers.parse.json) {
+  def updateStore(_id: Long) = Security.Authenticated.async(BodyParsers.parse.json) {
     implicit request =>
-      val _id = java.net.URLDecoder.decode(encodedID, "UTF-8")
       val userParam = request.body.validate[Store]
 
       userParam.fold(
@@ -317,18 +375,23 @@ object Application extends Controller {
           }
         },
         customer => {
-          Logger.debug(s"new customer")
           val userInfo = Security.getUserInfo().get
           val groupID = Group.withName(userInfo.groupID)
           implicit val db = userInfo.db
-          val f = Customer.newCustomer(customer)
-          for (ret <- f) yield {
-            Ok(Json.obj("ok" -> true))
+          val checkF = Customer.isCustomerExist(customer.phone)
+          for (exist <- checkF) yield {
+            if (exist)
+              Ok(Json.obj("ok" -> false, "msg" -> "相同電話使用者存在"))
+            else {
+              val f = Customer.newCustomer(customer)
+              val ret = ModelHelper.waitReadyResult(f)
+              Ok(Json.obj("ok" -> true))
+            }
           }
         })
   }
 
-  def updateCustomer(_id: String) = Security.Authenticated.async(BodyParsers.parse.json) {
+  def updateCustomer(_id: Long) = Security.Authenticated.async(BodyParsers.parse.json) {
     implicit request =>
       import Customer._
 
@@ -394,4 +457,37 @@ object Application extends Controller {
         })
   }
 
+  def getCustomer(_id: Long) = Security.Authenticated.async {
+    implicit request =>
+      val userInfo = Security.getUserInfo().get
+      val groupID = Group.withName(userInfo.groupID)
+      implicit val db = userInfo.db
+      val f = Customer.getCustomer(_id)
+      f.onFailure(errorHandler("getCustomer"))
+
+      for (customer <- f)
+        yield Ok(Json.toJson(customer))
+  }
+
+  def newOrder = Security.Authenticated.async(BodyParsers.parse.json) {
+    implicit request =>
+      import Order._
+
+      val orderParam = request.body.validate[Order]
+      orderParam.fold(
+        error => {
+          Future {
+            Logger.error(JsError.toJson(error).toString())
+            BadRequest(Json.obj("ok" -> false, "msg" -> JsError.toJson(error).toString()))
+          }
+        },
+        order => {
+          val userInfo = Security.getUserInfo().get
+          val groupID = Group.withName(userInfo.groupID)
+          implicit val db = userInfo.db
+          Future {
+            Ok(Json.obj("ok" -> true))
+          }
+        })
+  }
 }

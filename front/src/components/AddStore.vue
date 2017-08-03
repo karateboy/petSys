@@ -1,7 +1,7 @@
 <template>
     <div>
         <br>
-        <store :store='{}' :isNew='true'></store>
+        <store :store='emptyStore()' :isNew='true'></store>
     </div>
 </template>
 <style>
@@ -23,6 +23,14 @@
             ...mapGetters(['user'])
         },
         methods:{
+            emptyStore:()=>{
+                return {
+                    _id:0,
+                    name:"",
+                    addr:"",
+                    phone:""
+                }
+            }
          },
         components: {
             Store

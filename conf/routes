@@ -18,19 +18,28 @@ POST     /User                         controllers.Application.newUser
 GET      /User/:company/:skip/:limit   controllers.Application.getCompanyUsers(company, skip:Int, limit:Int)
 PUT      /User/:id                     controllers.Application.updateUser(id)
 DELETE   /User/:id                     controllers.Application.deleteUser(id)
+POST	 /Owner						   controllers.Application.newCompanyOwner	
 
 GET      /Store                        controllers.Application.getUserStoreList
 POST     /Store                        controllers.Application.newStore
-PUT      /Store/:id                    controllers.Application.updateStore(id)
-DELETE   /Store/:id                    controllers.Application.deleteStore(id)
+PUT      /Store/:id                    controllers.Application.updateStore(id:Long)
+DELETE   /Store/:id                    controllers.Application.deleteStore(id:Long)
+GET		 /StoreClerk/:id			   controllers.Application.getStoreClerkList(id:Long)
 
 GET      /GroupInfo                    controllers.Application.getGroupInfoList
 GET      /Group                        controllers.Application.getGroupInfoListBelow
 
 POST     /Customer                     controllers.Application.newCustomer
-PUT		 /Customer/:id				   controllers.Application.updateCustomer(id)
+PUT      /Customer/:id                 controllers.Application.updateCustomer(id:Long)
 POST     /QueryCustomer/:skip/:limit   controllers.Application.queryCustomer(skip: Int, limit: Int)
 POST     /QueryCustomer/count          controllers.Application.queryCustomerCount()
+GET      /Customer/:id                 controllers.Application.getCustomer(id:Long)
+
+#POST     /Order                        controllers.Application.newOrder
+#PUT      /Order/:id                    controllers.Application.updateOrder(id:Long)
+#DELETE   /Order/:id                    controllers.Application.deleteOrder(id:Long)
+#GET      /Order/:skip/:limit           controllers.Application.getOrderList(skip:Int, limit:Int)
+
 
 #Report
 

@@ -2,74 +2,59 @@
  * Created by user on 2017/1/20.
  */
 const emptyOrder = {
-    _id: "",
-    salesId: "",
-    name: "",
-    expectedDeliverDate: new Date().getTime(),
-    factoryId: "",
-    customerId: "",
-    brand: "",
-    date: 0,
-    details: [],
-    notices: [],
-    packageInfo: {
-        packageOption: [false, false, false, false, false],
-        packageNote: "",
-        labelOption: [false, false, false, false, true],
-        labelNote: "",
-        cardOption: [false, false, false, false],
-        cardNote: ['','','',''],
-        bagOption: [false, false, false, false, false, false],
-        pvcNote: "",
-        numInBag: 3,
-        bagNote: "",
-        exportBoxOption: [true, true],
-        exportBoxNote: ['',''],
-        ShippingMark: "",
-        extraNote: ""
-    },
+    _id: 0,
+    customerID: 0,
+    pet: "",
+    storeID: 0,
+    services: [],
+    note: "",
+    workers: [],
+    time: 0,
     active: true
 }
 
 const state = {
-    isNew:true,
-    order: JSON.parse(JSON.stringify( emptyOrder))
+    isEmptyOrder: true,
+    order: JSON.parse(JSON.stringify(emptyOrder))
 }
 
 const getters = {
-    order: state =>{
+    order: state => {
         return state.order;
     },
-    isNewOrder: state =>{
-        return state.isNew
+    isEmptyOrder: state => {
+        return state.isEmptyOrder
     }
 }
 
 const mutations = {
-    updateOrder: (state, payload) => {
+    assignOrder: (state, payload) => {
         state.order = payload.order
-        state.isNew = payload.isNew
+        state.isEmptyOrder = payload.isEmptyOrder
     }
 }
 
 const actions = {
-    newOrder : ({commit}) => {
-        const newOrder = JSON.parse(JSON.stringify( emptyOrder))
-        commit('updateOrder', {order:newOrder, isNew:true});
+    newOrder: ({commit}) => {
+        const newOrder = JSON.parse(JSON.stringify(emptyOrder))
+        commit('assignOrder', {order: newOrder, isEmptyOrder: true});
     },
-    showOrder : ({commit}, myOrder) =>{
-        commit('updateOrder', {order:myOrder, isNew:false})
-    },
-    cloneOrder : ({commit}, myOrder) =>{
-        const cloneOrder = JSON.parse(JSON.stringify(myOrder))
-        cloneOrder._id = ""
-        for(let detail of cloneOrder.details){
-            detail.workCardIDs = []
-            detail.finishedWorkCards = []
-            detail.complete = false
+    newOrderWithCustomer: ({commit}, payload) => {
+        const newOrder = JSON.parse(JSON.stringify(emptyOrder))
+        newOrder.customerID = payload.customer._id
+        if (payload.customer.petList.length > 0){
+            newOrder.pet = payload.customer.petList[0].name
         }
-        cloneOrder.expectedDeliverDate = new Date().getTime()
-        commit('updateOrder', {order:cloneOrder, isNew:true})
+        else
+            newOrder.pet = "-"
+
+        if(payload.storeList.length > 0){
+            newOrder.storeID = payload.storeList[0]._id
+        }
+        commit('assignOrder', {order: newOrder, isEmptyOrder: true});
+    },
+    assignOrder: ({commit}, myOrder) => {
+        commit('assignOrder', {order: myOrder, isEmptyOrder: false})
     }
 }
 

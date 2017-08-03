@@ -28,10 +28,15 @@
                             </div>
                             <!-- Change this to a button or input when using this as a form -->
                             <div class="form-group">
-                                <div class="col-lg-offset-2 col-lg-4">
+                                <div class="col-lg-offset-2 col-lg-2">
                                     <button type="submit" class="btn btn-lg btn-success btn-block"
                                             :disabled="!ready"
                                             @click.prevent="login">登入
+                                    </button>
+                                </div>
+                                <div class="col-lg-2">
+                                    <button class="btn btn-lg btn-success btn-block"
+                                            @click.prevent="registerCompany">註冊公司
                                     </button>
                                 </div>
                             </div>
@@ -108,6 +113,10 @@
                         alert(err)
                     }
                 )
+            },
+            registerCompany(){
+                console.log("register Company")
+                this.$router.push({name: 'RegisterCompany'})
             }
         },
         components: {}

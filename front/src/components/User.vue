@@ -5,7 +5,7 @@
                 <label class="col-lg-2 control-label">公司</label>
                 <div class="col-lg-5">
                     <input type="text" placeholder="帳號" class="form-control"
-                           :value="user.company" readonly>
+                           v-model="user.company" :readonly="!isCompanyOwner">
                 </div>
             </div>
 
@@ -101,7 +101,7 @@
             }
         },
         mounted: function () {
-            axios.get('/Group').then((resp) => {
+            axios.get('/GroupInfo').then((resp) => {
                 const ret = resp.data
                 this.groupInfoList.splice(0, this.groupInfoList.length)
                 for (let group of ret) {
@@ -125,16 +125,21 @@
         },
         methods: {
             ...mapActions(['logout']),
-            containStore(storeID){
+            containStore(storeID) {
                 return this.user.storeList.indexOf(storeID) != -1
             },
-            toggleStoreList(storeID){
+            toggleStoreList(storeID) {
                 let index = this.user.storeList.indexOf(storeID)
-                if(index > -1){
+                if (index > -1) {
                     this.user.storeList.splice(index, 1)
-                }else{
+                } else {
                     this.user.storeList.push(storeID)
                 }
+            },
+            isCompanyOwner() {
+                if (this.user.groupID == "Owner")
+                    return true
+                else return false
             },
             newUser() {
                 if (this.user.password != this.user.passwordRetype) {
@@ -142,11 +147,26 @@
                     return
                 }
 
-                axios.post('/User', this.user).then((resp) => {
+                if(this.isCompanyOwner()){
+                    if(!this.user.company || this.user.company.length == 0){
+                        alert("公司名稱不能是空的")
+                        return
+                    }
+                }
+                let url
+                if (this.user.groupID == 'Owner')
+                    url = '/Owner'
+                else
+                    url = '/User'
+                axios.post(url, this.user).then((resp) => {
                     const ret = resp.data
-                    if (ret.ok)
+                    if (ret.ok){
                         alert("成功")
-                    else
+
+                        if (this.user.groupID == 'Owner'){
+                            this.$router.push({name: 'Login'})
+                        }
+                    } else
                         alert("失敗:" + ret.msg)
                 }).catch((err) => {
                     alert(err)
@@ -164,6 +184,7 @@
                     const ret = resp.data
                     if (ret.ok) {
                         alert("成功")
+                        this.$emit('userUpdated')
                     }
                     else
                         alert("失敗:" + ret.msg)

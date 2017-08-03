@@ -5,8 +5,8 @@
                 <thead>
                 <tr class='info'>
                     <th></th>
-                    <th>客戶編號</th>
                     <th>姓名</th>
+                    <th>電話</th>
                     <th>生日</th>
                     <th>寵物</th>
                     <th>首次來店日期</th>
@@ -18,8 +18,8 @@
                     <td>
                         <button class='btn btn-info' @click="showDetail(idx)"><i class="fa fa-eye"></i>&nbsp;內容</button>
                     </td>
-                    <td class='text-right'>{{customer._id}}</td>
                     <td class='text-right'>{{customer.name}}</td>
+                    <td>{{customer.phone}}</td>
                     <td class='text-right'>{{displayTime(customer.bdate)}}</td>
                     <td class='text-right' v-html="displayPet(customer)"></td>
                     <td class='text-right'>{{displayTime(customer.firstTime)}}</td>
@@ -33,7 +33,7 @@
         <div v-else class="alert alert-info" role="alert">沒有符合的顧客</div>
         <hr>
         <div v-if='detail>=0'>
-            <customer :customerParam="customer" :isNew="false"></customer>
+            <customer></customer>
         </div>
     </div>
 </template>
@@ -44,6 +44,7 @@
     import axios from 'axios'
     import {Pagination, PaginationEvent} from 'vue-pagination-2'
     import Customer from './Customer.vue'
+    import {mapActions} from 'vuex'
 
     export default {
         props: {
@@ -61,8 +62,7 @@
                 skip: 0,
                 limit: 5,
                 total: 0,
-                detail: -1,
-                customer: {}
+                detail: -1
             }
         },
         mounted: function () {
@@ -79,6 +79,7 @@
         },
 
         methods: {
+            ...mapActions(['assignCustomer']),
             processResp(resp) {
                 const ret = resp.data
                 this.customerList.splice(0, this.customerList.length)
@@ -139,10 +140,8 @@
                     return "-"
             },
             showDetail(idx) {
-                this.customer = this.customerList[idx]
                 this.detail = idx
-                console.log(this.customer)
-                console.log(this.detail)
+                this.assignCustomer(this.customerList[idx])
             }
         },
         components: {

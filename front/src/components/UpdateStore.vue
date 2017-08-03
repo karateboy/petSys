@@ -9,7 +9,7 @@
                         <label class="btn btn-outline btn-primary dim"
                                v-for="store in storeList"
                                @click="selectedStore=store">
-                            <input type="radio">{{ store._id }} </label>
+                            <input type="radio">{{ store.name }} </label>
                     </div>
                 </div>
             </div>

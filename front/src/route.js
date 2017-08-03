@@ -1,5 +1,6 @@
 import Dashboard from "./components/Dashboard.vue"
 import Login from "./components/Login.vue"
+import RegisterCompanyOwner from './components/RegisterCompanyOwner.vue'
 //User
 import UserManagement from './components/UserManagement.vue'
 import AddUser from './components/AddUser.vue'
@@ -23,6 +24,7 @@ import QueryCustomer from './components/QueryCustomer.vue'
 export const routes = [
     {path: '/', component: Dashboard, name: 'Dashboard'},
     {path: '/Login', component: Login, name: 'Login'},
+    {path: '/RegisterCompany', component: RegisterCompanyOwner, name: 'RegisterCompany'},
     {
         path: '/Order', component: Order, name: 'Order',
         children: [

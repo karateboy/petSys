@@ -115,14 +115,14 @@
                 ></pet>
             </div>
 
-            <div class="form-group" v-if='isNew'>
+            <div class="form-group" v-if='isNewCustomer'>
                 <div class="col-lg-offset-2 col-lg-10">
-                    <button class="btn btn-primary" @click.prevent="newCustomer">新增顧客</button>
+                    <button class="btn btn-primary" :disabled="!validCustomer" @click.prevent="newCustomer">新增顧客</button>
                 </div>
             </div>
             <div class="form-group" v-else>
                 <div class="col-lg-offset-2 col-lg-10">
-                    <button class="btn btn-primary" @click.prevent="updateCustomer">更新顧客</button>
+                    <button class="btn btn-primary" :disabled="!validCustomer" @click.prevent="updateCustomer">更新顧客</button>
                 </div>
             </div>
         </div>
@@ -141,36 +141,16 @@
 
     import {mapActions, mapGetters} from 'vuex'
 
-    const emptyCustomer = {
-        _id: 0,
-        petList: [],
-        orderList: [],
-        firstTime: 0,
-        lastTime: 0
-    }
-
     export default {
-        props: {
-            customerParam: {
-                type: Object
-            },
-            isNew: {
-                type: Boolean,
-                required: true
-            }
-        },
         data() {
             return {
-                customer:this.customerParam,
                 newPet: true,
                 petIndex: 0,
                 showPetModal: false
             }
         },
-        mounted: function(){
-            console.log("mounted")
-        },
         computed: {
+            ...mapGetters(['customer', 'isNewCustomer']),
             bdate: {
                 get: function () {
                     if (this.customer.bdate)
@@ -194,17 +174,26 @@
                     return emptyPet
                 else
                     return this.customer.petList[this.petIndex]
+            },
+            validCustomer: function(){
+                if(!this.customer.name || this.customer.name.length ===0)
+                    return false
+                else if(!this.customer.phone || this.customer.phone.length ===0)
+                    return false
+
+                return true
             }
         },
         mounted: function () {
         },
         methods: {
+            ...mapActions(['emptyCustomer']),
             newCustomer() {
                 axios.post('/Customer', this.customer).then((resp) => {
                     const ret = resp.data
                     if (ret.ok) {
                         alert("成功")
-                        this.customer = JSON.parse(JSON.stringify(emptyCustomer))
+                        this.emptyCustomer()
                     } else
                         alert("失敗:" + ret.msg)
                 }).catch((err) => {
@@ -213,7 +202,7 @@
             },
             updateCustomer() {
                 const url = `/Customer/${this.customer._id}`
-                axios.put(url, this.user).then((resp) => {
+                axios.put(url, this.customer).then((resp) => {
                     const ret = resp.data
                     if (ret.ok) {
                         alert("成功")

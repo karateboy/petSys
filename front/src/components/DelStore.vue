@@ -9,7 +9,7 @@
                         <label class="btn btn-outline btn-primary dim"
                                v-for="store in storeList"
                                @click="storeID=store._id">
-                            <input type="radio">{{ store._id }} </label>
+                            <input type="radio">{{ store.name }} </label>
                     </div>
                 </div>
             </div>
@@ -47,7 +47,7 @@
         methods: {
             ...mapActions(['refreshStoreList']),
             delStore(){
-                const url = `/Store/${encodeURIComponent(this.storeID)}`
+                const url = `/Store/${this.storeID}`
                 axios.delete(url).then((resp) => {
                     const ret = resp.data
                     if (ret.ok) {

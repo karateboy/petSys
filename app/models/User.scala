@@ -13,7 +13,7 @@ import org.mongodb.scala.model._
 import org.mongodb.scala.MongoDatabase
 
 case class User(_id: String, company: String, name: String, password: String,
-                phone: String, email: String, groupID: String, storeList: Seq[String])
+                phone: String, email: String, groupID: String, storeList: Seq[Long])
 
 object User {
   import scala.concurrent._
@@ -29,7 +29,7 @@ object User {
 
   val ADMIN_COMPANY = "admin"
   def buildCompanyUser(company: String, name: String, password: String,
-                       phone: String, email: String, groupID: Group.Value, storeList: Seq[String]) =
+                       phone: String, email: String, groupID: Group.Value, storeList: Seq[Long]) =
     User(_id = buildUserID(company, name),
       company = company,
       name = name,
@@ -47,7 +47,7 @@ object User {
       phone = phone,
       email = email,
       groupID = groupID.toString,
-      storeList = Seq.empty[String])
+      storeList = Seq.empty[Long])
 
   val colName = "user"
 
@@ -140,6 +140,13 @@ object User {
     f
   }
 
+  def getCompanyStoreUsers(company: String, storeID:Long)= {
+    import org.mongodb.scala.model._
+    val f = collection.find(Filters.and(Filters.equal("company", company), Filters.in("storeList", storeID))).toFuture()
+    f.onFailure(errorHandler("getCompanyUsers"))
+    f
+  }
+  
   def getAdminUsers() = {
     val f = collection.find(equal("groupId", Group.Admin.toString)).toFuture()
     f.onFailure { errorHandler }
@@ -147,14 +154,14 @@ object User {
       yield users
   }
 
-  def addStore(userID: String, storeID: String) = {
+  def addStore(userID: String, storeID: Long) = {
     import org.mongodb.scala.model._
     val f = collection.updateOne(Filters.equal("_id", userID), Updates.addToSet("storeList", storeID)).toFuture()
     f.onFailure(errorHandler)
     f
   }
 
-  def removeStore(userID: String, storeID: String) = {
+  def removeStore(userID: String, storeID: Long) = {
     import org.mongodb.scala.model._
     val f = collection.updateOne(Filters.equal("_id", userID), Updates.pull("storeList", storeID)).toFuture()
     f.onFailure(errorHandler)

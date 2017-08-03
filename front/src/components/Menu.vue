@@ -63,7 +63,7 @@
                         <a><i class="fa fa-th-large"></i>
                             <span class="nav-label"></span>更新店鋪</a></router-link>
                     <li v-for="store in storeList"><a><i class="fa fa-th-large"></i>
-                        <span class="nav-label">{{store._id}}</span> </a></li>
+                        <span class="nav-label">{{store.name}}</span> </a></li>
                 </ul>
             </li>
             <li v-show="companyAdmin">

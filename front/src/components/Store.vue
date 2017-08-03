@@ -5,7 +5,7 @@
                 <label class="col-lg-2 control-label">店名</label>
                 <div class="col-lg-5">
                     <input type="text" placeholder="店名" class="form-control"
-                           required v-model="store._id">
+                           required v-model="store.name">
                 </div>
             </div>
             <div class="form-group">
@@ -64,10 +64,11 @@
             }
         },
         computed: {
+
         },
         methods: {
             newStore() {
-                if (!this.store._id || this.store._id ==='') {
+                if (!this.store.name || this.store.name.length == 0) {
                     alert('店名不能是空的')
                     return
                 }
@@ -83,7 +84,7 @@
                 })
             },
             updateStore() {
-                const url = `/Store/${encodeURIComponent(this.storeID)}`
+                const url = `/Store/${this.storeID}`
                 axios.put(url, this.store).then((resp) => {
                     const ret = resp.data
                     if (ret.ok) {

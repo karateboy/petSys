@@ -12,7 +12,7 @@
                                 class="fa fa-bars"></i> </a>
                         <form role="search" class="navbar-form-custom" method="post" action="#">
                             <div class="form-group">
-                                <input type="text" placeholder="寵物店客戶管理系統" class="form-control" name="top-search"
+                                <input type="text" :placeholder="displaySelectedCustomer" class="form-control" name="top-search"
                                        id="top-search">
                             </div>
                         </form>
@@ -51,12 +51,22 @@
 <script>
     import menu from "./components/menu.vue"
     import axios from 'axios'
+    import {mapGetters} from 'vuex'
 
     export default {
         name: 'app',
         data () {
             return {
                 msg: 'Welcome to Your Vue.js App'
+            }
+        },
+        computed:{
+            ...mapGetters(['customer']),
+            displaySelectedCustomer(){
+                if(this.customer._id === 0){
+                    return "尚未指定顧客"
+                }else
+                    return `目前顧客:${this.customer.name}`
             }
         },
         methods: {

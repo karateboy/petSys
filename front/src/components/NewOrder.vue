@@ -1,8 +1,6 @@
 <template>
     <div>
         <br>
-        <div class='col-lg-1'></div>
-        <button class='btn btn-primary' @click="newOrder"><i class="fa fa-shower" aria-hidden="true"></i>&nbsp;重設</button>
         <order-detail></order-detail>
     </div>
 </template>
@@ -16,11 +14,14 @@
         data(){
             return {}
         },
+        mounted:function(){
+          this.newOrderWithCustomer({customer:this.customer, storeList:this.storeList})
+        },
         computed: {
-            ...mapGetters(['order'])
+            ...mapGetters(['order', 'customer', 'storeList'])
         },
         methods: {
-            ...mapActions(['newOrder'])
+            ...mapActions(['newOrderWithCustomer'])
         },
         components: {
             OrderDetail

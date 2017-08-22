@@ -16,7 +16,9 @@
                 <tbody>
                 <tr v-for='(customer, idx) in customerList' :class='{success:idx==detail}'>
                     <td>
-                        <button class='btn btn-info' @click="showDetail(idx)"><i class="fa fa-eye"></i>&nbsp;內容</button>
+                        <button class='btn btn-info' @click="toggleDetail(idx)"><i class="fa fa-eye"></i>
+                            {{buttonTitle}}
+                        </button>
                     </td>
                     <td class='text-right'>{{customer.name}}</td>
                     <td>{{customer.phone}}</td>
@@ -32,7 +34,7 @@
         </div>
         <div v-else class="alert alert-info" role="alert">沒有符合的顧客</div>
         <hr>
-        <div v-if='detail>=0'>
+        <div v-if='displayDetail'>
             <customer></customer>
         </div>
     </div>
@@ -54,6 +56,10 @@
             },
             param: {
                 type: [Object, Array]
+            },
+            selectCustomer: {
+                type: Boolean,
+                default: false
             }
         },
         data() {
@@ -64,6 +70,22 @@
                 total: 0,
                 detail: -1
             }
+        },
+        computed: {
+            displayDetail: function () {
+                return this.customerList.length > 0 && this.detail >= 0 && !this.selectCustomer
+            },
+            buttonTitle: function () {
+                if (this.detail == -1) {
+                    if (!this.selectCustomer)
+                        return "細節"
+                    else
+                        return "選擇"
+                }
+                else
+                    return "關閉"
+            }
+
         },
         mounted: function () {
             this.fetchCustomer(this.skip, this.limit)
@@ -133,14 +155,17 @@
                     }).join('<br/>')
                 return petStr
             },
-            displayBdate(customer){
-                if(customer.bdate)
+            displayBdate(customer) {
+                if (customer.bdate)
                     return moment(customer.bdate).format('LL')
                 else
                     return "-"
             },
-            showDetail(idx) {
-                this.detail = idx
+            toggleDetail(idx) {
+                if (this.detail != idx)
+                    this.detail = idx
+                else
+                    this.detail = -1
                 this.assignCustomer(this.customerList[idx])
             }
         },

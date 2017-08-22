@@ -4,7 +4,9 @@
 const emptyOrder = {
     _id: 0,
     customerID: 0,
-    pet: "",
+    pet: {
+        name:""
+    },
     storeID: 0,
     services: [],
     note: "",

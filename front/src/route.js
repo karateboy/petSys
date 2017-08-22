@@ -14,12 +14,15 @@ import UpdateStore from './components/UpdateStore.vue'
 //Order
 import NewOrder from "./components/NewOrder.vue"
 import Order from "./components/Order.vue"
-import MyOrder from "./components/MyOrder.vue"
 import QueryOrder from "./components/QueryOrder.vue"
 //Customer
 import CustomerManagement from './components/CustomerManagement.vue'
 import AddCustomer from './components/AddCustomer.vue'
 import QueryCustomer from './components/QueryCustomer.vue'
+//Hotel
+
+//Report
+import Report from './components/Report.vue'
 
 export const routes = [
     {path: '/', component: Dashboard, name: 'Dashboard'},
@@ -29,7 +32,6 @@ export const routes = [
         path: '/Order', component: Order, name: 'Order',
         children: [
             {path: 'New', component: NewOrder, name: 'NewOrder'},
-            {path: 'Mine', component: MyOrder, name: 'MyOrder'},
             {path: 'Query', component: QueryOrder}
         ]
     },
@@ -54,6 +56,12 @@ export const routes = [
             {path: 'AddStore', component:AddStore, name:'AddStore' },
             {path: 'DelStore', component:DelStore, name:'DelStore' },
             {path: 'UpdateStore', component:UpdateStore, name:'UpdateStore' },
+        ]
+    },
+    {
+        path: '/Report', component: Report, name: 'Report',
+        children: [
+            {path: 'Report1', component:AddStore, name:'Report1' },
         ]
     },
     {path: '*', redirect: '/'}

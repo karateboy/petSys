@@ -1,7 +1,7 @@
 <template>
     <div>
         <br>
-        <user :user='emptyUser()' :isNew='true'></user>
+        <user :user='emptyUser()' :isNew='true' :registerCompany="true"></user>
     </div>
 </template>
 <style>

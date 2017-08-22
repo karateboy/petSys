@@ -490,4 +490,15 @@ object Application extends Controller {
           }
         })
   }
+
+  def breedList = Security.Authenticated.async {
+    implicit request =>
+      val userInfo = Security.getUserInfo().get
+      implicit val db = userInfo.db
+      val f = Breed.getBreedList
+      for (breedList <- f) yield {
+        implicit val write = Json.writes[Breed]
+        Ok(Json.toJson(breedList))
+      }
+  }
 }

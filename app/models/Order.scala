@@ -10,7 +10,7 @@ import scala.concurrent.ExecutionContext.Implicits.global
 import scala.language.implicitConversions
 import org.mongodb.scala.bson._
 
-case class Order(var _id: Long, customerID: Int, pet: String, storeID: Long, services:Seq[String],                 
+case class Order(var _id: Long, customerID: Int, pet: Pet, storeID: Long, services:Seq[String],                 
                  note: String, workers: Seq[String], var time: Long, active: Boolean)
 object Order {
   import org.mongodb.scala._
@@ -18,11 +18,13 @@ object Order {
   import org.mongodb.scala.bson.codecs.DEFAULT_CODEC_REGISTRY
   import org.bson.codecs.configuration.CodecRegistries.{ fromRegistries, fromProviders }
 
+  implicit val writePet = Json.writes[Pet]
+  implicit val readPet = Json.reads[Pet]
   implicit val reads = Json.reads[Order]
   implicit val writes = Json.writes[Order]
 
   val colName = "order"
-  val codecRegistry = fromRegistries(fromProviders(classOf[Order]), DEFAULT_CODEC_REGISTRY)
+  val codecRegistry = fromRegistries(fromProviders(classOf[Order], classOf[Pet]), DEFAULT_CODEC_REGISTRY)
 
   def collection(implicit db: MongoDatabase) =
     db.getCollection[Order](colName).withCodecRegistry(codecRegistry)

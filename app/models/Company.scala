@@ -21,6 +21,7 @@ case class Company(_id: String, dbName: String, ownerID: String) {
       Store.init(colNames, ownerID)
       Customer.init(colNames)
       Order.init(colNames)
+      Breed.init(colNames)
       EventLog.init(colNames)
     }
     //Program need to wait before init complete

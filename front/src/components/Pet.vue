@@ -20,9 +20,13 @@
                         </div>
                         <div class="form-group">
                             <label class="col-lg-2 control-label"><strong class="text-danger">*</strong>品種:</label>
-                            <div class="col-lg-2">
-                                <input type="text" class="form-control"
-                                       v-model="pet.breed"></div>
+                            <div class="btn-group col-log-6" data-toggle="buttons">
+                                <label class="btn btn-outline btn-primary"
+                                       v-for="breed in breedList"
+                                       @click="pet.breed=breed._id"
+                                       :class="{active: pet.breed==breed._id }">
+                                    <input type="radio">{{ breed._id }} </label>
+                            </div>
                         </div>
                         <div class="form-group">
                             <label class="col-lg-2 control-label">顏色:</label>
@@ -92,6 +96,7 @@
 
 </style>
 <script>
+    import axios from 'axios'
     import Datepicker from 'vuejs-datepicker'
 
     export default {
@@ -111,10 +116,19 @@
         },
         data() {
             return {
+                breedList: [],
                 pet: JSON.parse(JSON.stringify(this.petParam))
             }
         },
-        mounted: function(){
+        mounted: function () {
+            axios.get("/Breed").then(resp => {
+                    const data = resp.data
+                    this.breedList.splice(0, this.breedList.length)
+                    for (let breed of data) {
+                        this.breedList.push(breed)
+                    }
+                }
+            ).catch(err => alert(err))
         },
         computed: {
             title: function () {
@@ -132,24 +146,24 @@
                 return true
             },
             bdate: {
-                get: function(){
+                get: function () {
                     if (this.pet.bdate)
                         return new Date(this.pet.bdate)
                     else
                         return null
                 },
-                set: function(val){
+                set: function (val) {
                     this.pet.bdate = val.getTime()
                 }
             },
             chip: {
-                get: function(){
+                get: function () {
                     if (this.pet.chip)
                         return new Date(this.pet.chip)
                     else
                         return null
                 },
-                set: function(val){
+                set: function (val) {
                     this.pet.chip = val.getTime()
                 }
             }
@@ -162,7 +176,7 @@
             updatePet() {
                 this.$emit('updatePet', {
                     index: this.index,
-                    pet:  Object.assign({}, this.pet)
+                    pet: Object.assign({}, this.pet)
                 })
             }
         },

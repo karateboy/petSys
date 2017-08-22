@@ -54,7 +54,7 @@
                     </div>
                 </div>
             </div>
-            <div class="form-group">
+            <div class="form-group" v-if="storeList.length > 0">
                 <label class="col-lg-2 control-label">店鋪:</label>
                 <div class="col-lg-7">
                     <div class="btn-group" data-toggle="buttons">
@@ -98,14 +98,19 @@
             isNew: {
                 type: Boolean,
                 required: true
-            }
+            },
+            registerCompany: Boolean
         },
         mounted: function () {
             axios.get('/GroupInfo').then((resp) => {
                 const ret = resp.data
                 this.groupInfoList.splice(0, this.groupInfoList.length)
                 for (let group of ret) {
-                    this.groupInfoList.push(group)
+                    if (this.registerCompany) {
+                        if (group.id == 'Owner')
+                            this.groupInfoList.push(group)
+                    } else
+                        this.groupInfoList.push(group)
                 }
             }).catch((err) => {
                 alert(err)
@@ -147,8 +152,8 @@
                     return
                 }
 
-                if(this.isCompanyOwner()){
-                    if(!this.user.company || this.user.company.length == 0){
+                if (this.isCompanyOwner()) {
+                    if (!this.user.company || this.user.company.length == 0) {
                         alert("公司名稱不能是空的")
                         return
                     }
@@ -160,10 +165,10 @@
                     url = '/User'
                 axios.post(url, this.user).then((resp) => {
                     const ret = resp.data
-                    if (ret.ok){
+                    if (ret.ok) {
                         alert("成功")
 
-                        if (this.user.groupID == 'Owner'){
+                        if (this.user.groupID == 'Owner') {
                             this.$router.push({name: 'Login'})
                         }
                     } else

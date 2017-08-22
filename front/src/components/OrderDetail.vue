@@ -6,17 +6,21 @@
                     <div class="col-lg-1"><input class="form-control" :value="customerName" readonly>
                     </div>
                     <div class="col-log-1">
-                        <button class="btn btn-primary">查詢客戶</button>
+                        <button class="btn btn-primary" data-toggle="modal" data-target="#customerDlg"
+                                data-backdrop="static" data-keyboard="false"
+                                >查詢客戶</button>
                     </div>
+                    <select-customer-dlg id="customerDlg"></select-customer-dlg>
+
                 </div>
                 <div class="form-group"><label class="col-lg-1 control-label">寵物名稱:</label>
-                    <div class="col-lg-1"><input class="form-control" :value="order.pet" readonly>
+                    <div class="col-lg-1"><input class="form-control" :value="order.pet.name" readonly>
                     </div>
                     <div class="btn-group" data-toggle="buttons">
                         <label class="btn btn-outline btn-primary dim"
                                v-for="pet in customer.petList"
-                               :class="{active: order.pet==pet.name}"
-                               @click="order.pet=pet.name">
+                               :class="{active: order.pet.name==pet.name}"
+                               @click="order.pet=pet">
                             <input type="radio">{{ pet.name }} </label>
                     </div>
                 </div>
@@ -75,10 +79,12 @@
     import axios from 'axios'
     import moment from 'moment'
     import Datepicker from 'vuejs-datepicker'
+    import SelectCustomerDlg from './SelectCustomerDlg.vue'
 
     export default {
         data() {
             return {
+                showSelectCustomerDlg: false,
                 clerkList:[]
             }
         },
@@ -96,7 +102,7 @@
           }
         },
         computed: {
-            ...mapGetters(['user', 'order', 'isEmptyOrder', 'customer', 'storeList']),
+            ...mapGetters(['user', 'order', 'isEmptyOrder', 'customer', 'storeList', 'isEmptyCustomer']),
             readyForSubmit() {
                 if (this.order.customerID === 0
                     || this.order.pet === "")
@@ -105,10 +111,12 @@
                     return true;
             },
             customerName() {
-                if (this.customer._id == this.order.customerID)
-                    return this.customer.name
-                else
+                if (this.isEmptyCustomer)
                     return "-"
+                else {
+                    this.order.customerID = this.customer._id
+                    return this.customer.name
+                }
             },
             storeName() {
                 for (let store of this.storeList) {
@@ -122,6 +130,9 @@
             ...mapActions(['getCustomerByID', 'assignPet', 'assignStoreID', 'assignCustomerID']),
             inWorkers(id){
               return this.order.workers.indexOf(id) != -1
+            },
+            queryCustomer(){
+                this.showSelectCustomerDlg = true
             },
             prepareOrder() {
                 if (!this.order.salesId)
@@ -145,7 +156,8 @@
             }
         },
         components: {
-            Datepicker
+            Datepicker,
+            SelectCustomerDlg
         }
     }
 </script>

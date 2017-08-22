@@ -12,21 +12,23 @@
                 <div class="col-lg-4"><input type="text" class="form-control" placeholder="電話"
                                              v-model="queryParam.phone"></div>
             </div>
-            <div class="form-group"><label class="col-lg-1 control-label">上次來店時間從:</label>
-                <div class="col-lg-5">
-                    <div class="input-daterange input-group">
-                        <span class="input-group-addon"><i class="fa fa-calendar"></i></span>
-                        <datepicker v-model="start" language="zh"
-                                    format="yyyy-MM-dd"></datepicker>
+            <div v-if="!selectCustomer">
+                <div class="form-group"><label class="col-lg-1 control-label">上次來店時間從:</label>
+                    <div class="col-lg-5">
+                        <div class="input-daterange input-group">
+                            <span class="input-group-addon"><i class="fa fa-calendar"></i></span>
+                            <datepicker v-model="start" language="zh"
+                                        format="yyyy-MM-dd"></datepicker>
+                        </div>
                     </div>
                 </div>
-            </div>
-            <div class="form-group"><label class="col-lg-1 control-label">至(不含):</label>
-                <div class="col-lg-5">
-                    <div class="input-daterange input-group">
-                        <span class="input-group-addon"><i class="fa fa-calendar"></i></span>
-                        <datepicker v-model="end" language="zh"
-                                    format="yyyy-MM-dd"></datepicker>
+                <div class="form-group"><label class="col-lg-1 control-label">至(不含):</label>
+                    <div class="col-lg-5">
+                        <div class="input-daterange input-group">
+                            <span class="input-group-addon"><i class="fa fa-calendar"></i></span>
+                            <datepicker v-model="end" language="zh"
+                                        format="yyyy-MM-dd"></datepicker>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -37,7 +39,7 @@
             </div>
         </div>
         <div v-if='display'>
-            <customer-list :url="queryUrl" :param="queryParam"></customer-list>
+            <customer-list :url="queryUrl" :param="queryParam" :selectCustomer="true"></customer-list>
         </div>
     </div>
 </template>
@@ -51,6 +53,12 @@
     import CustomerList from './CustomerList.vue'
 
     export default{
+        props:{
+            selectCustomer: {
+                type: Boolean,
+                default: false
+            }
+        },
         data(){
             return {
                 display: false,

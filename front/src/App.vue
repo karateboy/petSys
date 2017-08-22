@@ -12,7 +12,7 @@
                                 class="fa fa-bars"></i> </a>
                         <form role="search" class="navbar-form-custom" method="post" action="#">
                             <div class="form-group">
-                                <input type="text" :placeholder="displaySelectedCustomer" class="form-control" name="top-search"
+                                <input type="text" placeholder="寵物店客戶管理系統" class="form-control" name="top-search"
                                        id="top-search">
                             </div>
                         </form>
@@ -39,7 +39,7 @@
                     ...
                 </div>
                 <div>
-                    <strong>Copyright</strong> Patterns Company &copy; 2017
+                    <strong>Copyright</strong>  &copy; 2017
                 </div>
             </div>
 
@@ -61,13 +61,7 @@
             }
         },
         computed:{
-            ...mapGetters(['customer']),
-            displaySelectedCustomer(){
-                if(this.customer._id === 0){
-                    return "尚未指定顧客"
-                }else
-                    return `目前顧客:${this.customer.name}`
-            }
+            ...mapGetters(['customer'])
         },
         methods: {
             logout(){

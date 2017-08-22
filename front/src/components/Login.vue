@@ -7,34 +7,34 @@
                         <fieldset>
                             <div class="form-group">
                                 <label class="col-lg-2 control-label">公司:</label>
-                                <div class="col-lg-4"><input class="form-control" placeholder="帳號" type="email"
+                                <div class="col-lg-6"><input class="form-control" placeholder="帳號" type="email"
                                                              v-model="user.company"
                                                              required autofocus>
                                 </div>
                             </div>
                             <div class="form-group">
                                 <label class="col-lg-2 control-label">帳號:</label>
-                                <div class="col-lg-4"><input class="form-control" placeholder="帳號" type="email"
+                                <div class="col-lg-6"><input class="form-control" placeholder="帳號" type="email"
                                                              v-model="user.name"
                                                              required autofocus>
                                 </div>
                             </div>
                             <div class="form-group">
                                 <label class="col-lg-2 control-label">密碼:</label>
-                                <div class="col-lg-4"><input class="form-control" placeholder="密碼"
+                                <div class="col-lg-6"><input class="form-control" placeholder="密碼"
                                                              type="password" required
                                                              v-model="user.password">
                                 </div>
                             </div>
                             <!-- Change this to a button or input when using this as a form -->
                             <div class="form-group">
-                                <div class="col-lg-offset-2 col-lg-2">
+                                <div class="col-lg-offset-2 col-lg-3">
                                     <button type="submit" class="btn btn-lg btn-success btn-block"
                                             :disabled="!ready"
                                             @click.prevent="login">登入
                                     </button>
                                 </div>
-                                <div class="col-lg-2">
+                                <div class="col-lg-3">
                                     <button class="btn btn-lg btn-success btn-block"
                                             @click.prevent="registerCompany">註冊公司
                                     </button>

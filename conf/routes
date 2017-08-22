@@ -18,13 +18,13 @@ POST     /User                         controllers.Application.newUser
 GET      /User/:company/:skip/:limit   controllers.Application.getCompanyUsers(company, skip:Int, limit:Int)
 PUT      /User/:id                     controllers.Application.updateUser(id)
 DELETE   /User/:id                     controllers.Application.deleteUser(id)
-POST	 /Owner						   controllers.Application.newCompanyOwner	
+POST     /Owner                        controllers.Application.newCompanyOwner	
 
 GET      /Store                        controllers.Application.getUserStoreList
 POST     /Store                        controllers.Application.newStore
 PUT      /Store/:id                    controllers.Application.updateStore(id:Long)
 DELETE   /Store/:id                    controllers.Application.deleteStore(id:Long)
-GET		 /StoreClerk/:id			   controllers.Application.getStoreClerkList(id:Long)
+GET      /StoreClerk/:id               controllers.Application.getStoreClerkList(id:Long)
 
 GET      /GroupInfo                    controllers.Application.getGroupInfoList
 GET      /Group                        controllers.Application.getGroupInfoListBelow
@@ -35,6 +35,7 @@ POST     /QueryCustomer/:skip/:limit   controllers.Application.queryCustomer(ski
 POST     /QueryCustomer/count          controllers.Application.queryCustomerCount()
 GET      /Customer/:id                 controllers.Application.getCustomer(id:Long)
 
+GET      /Breed                        controllers.Application.breedList
 #POST     /Order                        controllers.Application.newOrder
 #PUT      /Order/:id                    controllers.Application.updateOrder(id:Long)
 #DELETE   /Order/:id                    controllers.Application.deleteOrder(id:Long)

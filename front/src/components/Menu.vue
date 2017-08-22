@@ -66,6 +66,16 @@
                         <span class="nav-label">{{store.name}}</span> </a></li>
                 </ul>
             </li>
+            <li v-show="companyOwner">
+                <a aria-expanded="true" class="has-arrow"><i class="fa fa-th-large"></i> <span
+                        class="nav-label">報表查詢</span></a>
+                <ul class="nav nav-second-level collapse">
+                    <router-link tag="li"
+                                 :to="{name:'AddStore'}" active-class="active">
+                        <a><i class="fa fa-th-large"></i>
+                            <span class="nav-label"></span>每月的犬種來客量</a></router-link>
+                </ul>
+            </li>
             <li v-show="companyAdmin">
                 <a><i class="fa fa-th-large"></i> <span class="nav-label">人員管理</span> <span
                         class="fa arrow"></span></a>

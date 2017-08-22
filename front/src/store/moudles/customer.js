@@ -23,6 +23,12 @@ const getters = {
     },
     isNewCustomer: state => {
         return state.isNewCustomer
+    },
+    isEmptyCustomer: state =>{
+        if(state.customer._id == 0)
+            return true
+        else
+            return false
     }
 }
 

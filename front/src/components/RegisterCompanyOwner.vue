@@ -5,35 +5,32 @@
     </div>
 </template>
 <style>
-    body{
-        background-color:#ff0000;
-    }
-
+body {
+    background-color: #ff0000;
+}
 </style>
-<script>
-    import User from './User.vue'
-    import {mapGetters} from 'vuex'
-    export default{
-        data(){
-            return {
-                msg: 'hello vue'
-            }
-        },
-        computed:{
-            ...mapGetters(['user'])
-        },
-        methods:{
-          emptyUser(){
-              return {
-                  _id:"",
-                  storeList: [],
-                  company: "",
-                  groupID:"Owner"
-              }
-          }
-        },
-        components: {
-            User
-        }
+<script lang='ts'>
+import User from './User.vue'
+import {
+    State,
+    Getter,
+    Action,
+    Mutation,
+    namespace
+} from 'vuex-class'
+import { Component, Inject, Model, Prop, Vue, Watch } from 'vue-property-decorator'
+import IUser from './IUser'
+
+export default class RegisterCompanyOwner extends Vue {
+    @Getter('user') user: IUser
+    emptyUser: () => {
+        _id: ""
+        storeList: Array<Object>
+        company: ""
+        groupID: "Owner"
     }
+    components: {
+        User: User
+    }
+}
 </script>

@@ -8,12 +8,12 @@
             <div class="row border-bottom">
                 <nav class="navbar navbar-static-top white-bg" role="navigation" style="margin-bottom: 0">
                     <div class="navbar-header">
-                        <a class="navbar-minimalize minimalize-styl-2 btn btn-primary " href="#"><i
-                                class="fa fa-bars"></i> </a>
+                        <a class="navbar-minimalize minimalize-styl-2 btn btn-primary " href="#">
+                            <i class="fa fa-bars"></i>
+                        </a>
                         <form role="search" class="navbar-form-custom" method="post" action="#">
                             <div class="form-group">
-                                <input type="text" placeholder="寵物店客戶管理系統" class="form-control" name="top-search"
-                                       id="top-search">
+                                <input type="text" placeholder="寵物店客戶管理系統" class="form-control" name="top-search" id="top-search">
                             </div>
                         </form>
                     </div>
@@ -39,49 +39,47 @@
                     ...
                 </div>
                 <div>
-                    <strong>Copyright</strong>  &copy; 2017
+                    <strong>Copyright</strong> &copy; 2017
                 </div>
             </div>
 
         </div>
     </div>
-
 </template>
 
-<script>
-    import menu from "./components/menu.vue"
-    import axios from 'axios'
-    import {mapGetters} from 'vuex'
+<script lang="ts">
+import Vue from 'vue'
+import Menu from "./components/Menu.vue"
+import axios from 'axios'
+import Component from 'vue-class-component'
+import {
+    State,
+    Getter,
+    Action,
+    Mutation,
+    namespace
+} from 'vuex-class'
 
-    export default {
-        name: 'app',
-        data () {
-            return {
-                msg: 'Welcome to Your Vue.js App'
-            }
-        },
-        computed:{
-            ...mapGetters(['customer'])
-        },
-        methods: {
-            logout(){
-                axios.get("/logout").then((resp) => {
-                    const ret = resp.data
-                    if(!ret.ok)
-                        console.log(ret.msg)
+@Component
+export default class App extends Vue {
+    name: 'app'
+    logout() {
+        axios.get("/logout").then((resp) => {
+            const ret = resp.data
+            if (!ret.ok)
+                console.log(ret.msg)
 
-                    this.$store.commit('updateAuthenticated', {authenticated: false, user: {}, storeList:[]});
-                    this.$router.push({name: 'Login'})
-                    alert("登出")
-                }).catch((err) => {
-                    alert(err)
-                })
-            }
-        },
-        components: {
-            menuView: menu
-        }
+            this.$store.commit('updateAuthenticated', { authenticated: false, user: {}, storeList: [] });
+            this.$router.push({ name: 'Login' })
+            alert("登出")
+        }).catch((err) => {
+            alert(err)
+        })
     }
+    components: {
+        menuView: Menu
+    }
+}
 </script>
 
 <style>

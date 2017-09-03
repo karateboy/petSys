@@ -5,35 +5,35 @@
     </div>
 </template>
 <style>
-    body{
-        background-color:#ff0000;
-    }
-
+body {
+    background-color: #ff0000;
+}
 </style>
-<script>
-    import User from './User.vue'
-    import {mapGetters} from 'vuex'
-    export default{
-        data(){
+<script lang='ts'>
+import User from './User.vue'
+import Vue from 'vue'
+import Component from 'vue-class-component'
+import {
+    State,
+    Getter,
+    Action,
+    Mutation,
+    namespace
+} from 'vuex-class'
+
+@Component
+export default class AddUser extends Vue {
+    @Getter('user') user:User
+        emptyUser() {
             return {
-                msg: 'hello vue'
+                _id: "",
+                storeList: JSON.parse(JSON.stringify(this.user.storeList)),
+                company: this.user.company,
+                groupID: "Clerk"
             }
-        },
-        computed:{
-            ...mapGetters(['user'])
-        },
-        methods:{
-          emptyUser(){
-              return {
-                  _id:"",
-                  storeList: JSON.parse(JSON.stringify(this.user.storeList)),
-                  company: this.user.company,
-                  groupID:"Clerk"
-              }
-          }
-        },
-        components: {
-            User
         }
+    components: {
+        User:User
     }
+}
 </script>

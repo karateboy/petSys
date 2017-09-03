@@ -10,7 +10,7 @@
     }
 
 </style>
-<script>
+<script lang='ts'>
     import Store from './Store.vue'
     import {mapGetters} from 'vuex'
     export default{

@@ -68,6 +68,6 @@ export default class DelUser extends Vue {
             alert(err)
         })
     }
-    components: {}
+     components: {}
 }
 </script>

@@ -6,9 +6,7 @@
                 <label class="col-lg-2 control-label">店鋪:</label>
                 <div class="col-lg-7">
                     <div class="btn-group" data-toggle="buttons">
-                        <label class="btn btn-outline btn-primary dim"
-                               v-for="store in storeList"
-                               @click="storeID=store._id">
+                        <label class="btn btn-outline btn-primary dim" v-for="store in storeList" @click="storeID=store._id">
                             <input type="radio">{{ store.name }} </label>
                     </div>
                 </div>
@@ -22,42 +20,40 @@
     </div>
 </template>
 <style>
-    body{
-        background-color:#ff0000;
-    }
-
-
-
+body {
+    background-color: #ff0000;
+}
 </style>
-<script>
-    import axios from 'axios'
-    import {mapGetters, mapActions} from 'vuex'
-    export default{
-        data(){
-            return {
-                storeID: ""
-            }
-        },
-        computed:{
-            ...mapGetters(['user', 'storeList'])
-        },
-        mounted:function () {
-            this.refreshStoreList()
-        },
-        methods: {
-            ...mapActions(['refreshStoreList']),
-            delStore(){
-                const url = `/Store/${this.storeID}`
-                axios.delete(url).then((resp) => {
-                    const ret = resp.data
-                    if (ret.ok) {
-                        alert('成功')
-                        this.refreshStoreList()
-                    } else
-                        alert('失敗')
-                })
-            }
-        },
-        components: {}
+<script lang='ts'>
+import axios from 'axios'
+import {
+    State,
+    Getter,
+    Action,
+    Mutation,
+    namespace
+} from 'vuex-class'
+import { Component, Inject, Model, Prop, Vue, Watch } from 'vue-property-decorator'
+import IStore from './IStore'
+import IUser from './IUser'
+export default class DelStore extends Vue {
+    storeID: ""
+    @Getter('user') user: IUser
+    @Getter('storeList') storeList: Array<IStore>
+    mounted() {
+        this.refreshStoreList()
     }
+    @Action('refreshStoreList') refreshStoreList: () => void
+    delStore() {
+        const url = `/Store/${this.storeID}`
+        axios.delete(url).then((resp) => {
+            const ret = resp.data
+            if (ret.ok) {
+                alert('成功')
+                this.refreshStoreList()
+            } else
+                alert('失敗')
+        })
+    }
+}
 </script>

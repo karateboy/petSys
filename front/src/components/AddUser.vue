@@ -20,20 +20,21 @@ import {
     Mutation,
     namespace
 } from 'vuex-class'
+import IUser from './IUser'
 
 @Component
 export default class AddUser extends Vue {
-    @Getter('user') user:User
-        emptyUser() {
-            return {
-                _id: "",
-                storeList: JSON.parse(JSON.stringify(this.user.storeList)),
-                company: this.user.company,
-                groupID: "Clerk"
-            }
+    @Getter('user') user: IUser
+    emptyUser() {
+        return {
+            _id: "",
+            storeList: JSON.parse(JSON.stringify(this.user.storeList)),
+            company: this.user.company,
+            groupID: "Clerk"
         }
+    }
     components: {
-        User:User
+        User: User
     }
 }
 </script>

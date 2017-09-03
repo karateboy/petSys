@@ -6,24 +6,21 @@
 <style>
 
 </style>
-<script>
-    import {mapActions, mapGetters} from 'vuex';
+<script lang='ts'>
+import {
+    State,
+    Getter,
+    Action,
+    Mutation,
+    namespace
+} from 'vuex-class'
+import { Component, Inject, Model, Prop, Vue, Watch } from 'vue-property-decorator'
+import IUser from './IUser'
 
-    export default{
-        data(){
-            return {
-                msg: '儀錶板...TBD'
-            }
-        },
-        computed: {
-            ...mapGetters(['isAuthenticated', 'user']),
-        },
-        methods: {
-                ...mapActions(['authenticate']),
-            test(evt){
-                    this.$store.dispatch('testAuthenticated');
-            }
-        },
-        components: {}
-    }
+@Component
+export default class Dashboard extends Vue {
+    @Getter('isAuthenticated') isAuthenticated: boolean
+    @Getter('user') user: IUser
+    @Action('authenticate') authenticate: () => void
+}
 </script>

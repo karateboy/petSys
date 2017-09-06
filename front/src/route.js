@@ -13,7 +13,7 @@ import DelStore from './components/DelStore.vue'
 import UpdateStore from './components/UpdateStore.vue'
 //Order
 import NewOrder from "./components/NewOrder.vue"
-import Order from "./components/Order.vue"
+import OrderManagement from "./components/OrderManagement.vue"
 import QueryOrder from "./components/QueryOrder.vue"
 //Customer
 import CustomerManagement from './components/CustomerManagement.vue'
@@ -29,7 +29,7 @@ export const routes = [
     {path: '/Login', component: Login, name: 'Login'},
     {path: '/RegisterCompany', component: RegisterCompanyOwner, name: 'RegisterCompany'},
     {
-        path: '/Order', component: Order, name: 'Order',
+        path: '/Order', component: OrderManagement, name: 'Order',
         children: [
             {path: 'New', component: NewOrder, name: 'NewOrder'},
             {path: 'Query', component: QueryOrder}

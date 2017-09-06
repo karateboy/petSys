@@ -3,8 +3,10 @@
         <div class="modal-dialog modal-lg">
             <div class="modal-content animated fadeIn">
                 <div class="modal-header">
-                    <button type="button" class="close" data-dismiss="modal"><span
-                            aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+                    <button type="button" class="close" data-dismiss="modal">
+                        <span aria-hidden="true">&times;</span>
+                        <span class="sr-only">Close</span>
+                    </button>
                     <h4 class="modal-title">{{title}}</h4>
                 </div>
                 <div class="modal-body">
@@ -13,38 +15,34 @@
                     </div>
                     <form>
                         <div class="form-group">
-                            <label class="col-lg-2 control-label"><strong class="text-danger">*</strong>名字:</label>
+                            <label class="col-lg-2 control-label">
+                                <strong class="text-danger">*</strong>名字:</label>
                             <div class="col-lg-2">
-                                <input type="text" class="form-control"
-                                       v-model="pet.name"></div>
+                                <input type="text" class="form-control" v-model="pet.name"></div>
                         </div>
                         <div class="form-group">
-                            <label class="col-lg-2 control-label"><strong class="text-danger">*</strong>品種:</label>
+                            <label class="col-lg-2 control-label">
+                                <strong class="text-danger">*</strong>品種:</label>
                             <div class="btn-group col-log-6" data-toggle="buttons">
-                                <label class="btn btn-outline btn-primary"
-                                       v-for="breed in breedList"
-                                       @click="pet.breed=breed._id"
-                                       :class="{active: pet.breed==breed._id }">
+                                <label class="btn btn-outline btn-primary" v-for="breed in breedList" @click="pet.breed=breed._id" :class="{active: pet.breed==breed._id }">
                                     <input type="radio">{{ breed._id }} </label>
                             </div>
                         </div>
                         <div class="form-group">
                             <label class="col-lg-2 control-label">顏色:</label>
                             <div class="col-lg-2">
-                                <input type="text" class="form-control"
-                                       v-model="pet.color"></div>
+                                <input type="text" class="form-control" v-model="pet.color"></div>
                         </div>
                         <div class="form-group">
                             <label class="col-lg-2 control-label">體重:</label>
                             <div class="col-lg-2">
-                                <input type="number" class="form-control"
-                                       v-model="pet.weight"></div>
+                                <input type="number" class="form-control" v-model="pet.weight"></div>
                             公斤
                         </div>
-                        <div class="form-group"><label class="col-lg-2 control-label">生日:</label>
+                        <div class="form-group">
+                            <label class="col-lg-2 control-label">生日:</label>
                             <div class='col-lg-4'>
-                                <datepicker v-model="bdate" language="zh"
-                                            format="yyyy-MM-dd"></datepicker>
+                                <datepicker v-model="bdate" language="zh" format="yyyy-MM-dd"></datepicker>
                             </div>
                         </div>
                         <div class="form-group">
@@ -56,14 +54,12 @@
                         <div class="form-group">
                             <label class="col-lg-2 control-label">常去獸醫院:</label>
                             <div class="col-lg-2">
-                                <input type="text" class="form-control"
-                                       v-model="pet.hospital"></div>
+                                <input type="text" class="form-control" v-model="pet.hospital"></div>
                         </div>
                         <div class="form-group">
                             <label class="col-lg-2 control-label">晶片植入時間:</label>
                             <div class='col-lg-4'>
-                                <datepicker v-model="chip" language="zh"
-                                            format="yyyy-MM-dd"></datepicker>
+                                <datepicker v-model="chip" language="zh" format="yyyy-MM-dd"></datepicker>
                             </div>
                         </div>
                         <div class="form-group">
@@ -76,8 +72,7 @@
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-white" data-dismiss="modal">取消</button>
-                    <button type="button" class="btn btn-primary" data-dismiss="modal" @click="addPet"
-                            v-if='isNew' :disabled="!readyToAdd">
+                    <button type="button" class="btn btn-primary" data-dismiss="modal" @click="addPet" v-if='isNew' :disabled="!readyToAdd">
                         新增
                     </button>
                     <button type="button" class="btn btn-primary" data-dismiss="modal" @click="updatePet" v-else>
@@ -89,99 +84,103 @@
     </div>
 </template>
 <style>
-    body {
-        background-color: #ff0000;
-    }
-
-
+body {
+    background-color: #ff0000;
+}
 </style>
-<script>
-    import axios from 'axios'
-    import Datepicker from 'vuejs-datepicker'
+<script lang="ts">
+import axios from 'axios'
+import Datepicker from 'vuejs-datepicker'
+import {
+    State,
+    Getter,
+    Action,
+    Mutation,
+    namespace
+} from 'vuex-class'
+import { Component, Inject, Model, Prop, Vue, Watch } from 'vue-property-decorator'
+import { IPet } from './ICustomer'
 
-    export default {
-        props: {
-            isNew: {
-                type: Boolean,
-                required: true
-            },
-            index: {
-                type: Number,
-                required: true
-            },
-            petParam: {
-                type: Object,
-                required: true
-            }
-        },
-        data() {
-            return {
-                breedList: [],
-                pet: JSON.parse(JSON.stringify(this.petParam))
-            }
-        },
-        mounted: function () {
-            axios.get("/Breed").then(resp => {
-                    const data = resp.data
-                    this.breedList.splice(0, this.breedList.length)
-                    for (let breed of data) {
-                        this.breedList.push(breed)
-                    }
-                }
-            ).catch(err => alert(err))
-        },
-        computed: {
-            title: function () {
-                if (this.isNew)
-                    return "新增寵物"
-                else
-                    return "更新寵物資訊"
-            },
-            readyToAdd: function () {
-                if (this.pet.name.length == 0)
-                    return false
-                else if (this.pet.breed.length == 0)
-                    return false
+export default class Pet extends Vue {
+    @Prop({
+        type: Boolean,
+        required: true
+    }) isNew: boolean
+    @Prop({
+        type: Number,
+        required: true
+    }) index: number
 
-                return true
-            },
-            bdate: {
-                get: function () {
-                    if (this.pet.bdate)
-                        return new Date(this.pet.bdate)
-                    else
-                        return null
-                },
-                set: function (val) {
-                    this.pet.bdate = val.getTime()
-                }
-            },
-            chip: {
-                get: function () {
-                    if (this.pet.chip)
-                        return new Date(this.pet.chip)
-                    else
-                        return null
-                },
-                set: function (val) {
-                    this.pet.chip = val.getTime()
-                }
+    @Prop({
+        type: Object,
+        required: true
+    }) petParam: object
+
+    breedList: Array<string>
+    pet: IPet = JSON.parse(JSON.stringify(this.petParam))
+
+    mounted() {
+        axios.get("/Breed").then(resp => {
+            const data = resp.data
+            this.breedList.splice(0, this.breedList.length)
+            for (let breed of data) {
+                this.breedList.push(breed)
             }
-        },
-        methods: {
-            addPet() {
-                this.$emit('addPet', Object.assign({}, this.pet))
-                this.pet
-            },
-            updatePet() {
-                this.$emit('updatePet', {
-                    index: this.index,
-                    pet: Object.assign({}, this.pet)
-                })
-            }
-        },
-        components: {
-            Datepicker
         }
+        ).catch(err => alert(err))
     }
+
+    get title() {
+        if (this.isNew)
+            return "新增寵物"
+        else
+            return "更新寵物資訊"
+    }
+
+    get readyToAdd() {
+        if (this.pet.name.length == 0)
+            return false
+        else if (this.pet.breed.length == 0)
+            return false
+
+        return true
+    }
+
+    get bdate() {
+        if (this.pet.bdate)
+            return new Date(this.pet.bdate)
+        else
+            return new Date()
+    }
+
+    set bdate(val:Date) {
+        this.pet.bdate = val.getTime()
+    }
+
+    get chip() {
+        if (this.pet.chip)
+            return new Date(this.pet.chip)
+        else
+            return new Date()
+    }
+
+    set chip(val:Date) {
+        this.pet.chip = val.getTime()
+    }
+
+    addPet() {
+        this.$emit('addPet', Object.assign({}, this.pet))
+        this.pet
+    }
+
+    updatePet() {
+        this.$emit('updatePet', {
+            index: this.index,
+            pet: Object.assign({}, this.pet)
+        })
+    }
+    components: {
+        Datepicker
+    }
+}
 </script>

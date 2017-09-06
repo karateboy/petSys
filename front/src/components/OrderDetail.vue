@@ -80,9 +80,11 @@ import {
 import { Component, Inject, Model, Prop, Vue, Watch } from 'vue-property-decorator'
 import IStore from './IStore'
 import IUser from './IUser'
+import IOrder from './IOrder'
+import { ICustomer } from './ICustomer'
 
 export default class OrderDetail extends Vue {
-    showSelectCustomerDlg: false
+    showSelectCustomerDlg = false
     clerkList: Array<string>
     @Watch('order.storeID') onStoreIDChange(newStoreID: string) {
         console.log("storeID is changed...")
@@ -97,14 +99,15 @@ export default class OrderDetail extends Vue {
     }
 
     @Getter("user") user: IUser
-    @Getter("order") order: object
+    @Getter("order") order: IOrder
     @Getter("isEmptyOrder") isEmptyOrder: boolean
-    @Getter("customer") customer: object
+    @Getter("storeList") storeList: Array<IStore>
+    @Getter("customer") customer: ICustomer
     @Getter("isEmptyCustomer") isEmptyCustomer: boolean
 
     readyForSubmit() {
         if (this.order.customerID === 0
-            || this.order.pet === "")
+            || this.order.pet === null)
             return false;
         else
             return true;
@@ -126,41 +129,35 @@ export default class OrderDetail extends Vue {
         }
         return "-"
     }
-}
+    @Action('getCustomerByID') getCustomerByID: (id: string) => void
+    @Action('assignPet') assignPet: (payload: object) => void
+    @Action('assignCustomerID') assignCustomerID: (payload: object) => void
 
-@Action('getCustomerByID') getCustomerByID: (id: string) => void
-@Action('assignPet') assignPet: (payload: object) => void
-@Action('assignCustomerID') assignCustomerID: (payload: object) => void
+    inWorkers(id: string) {
+        return this.order.workers.indexOf(id) != -1
+    }
+    queryCustomer() {
+        this.showSelectCustomerDlg = true
+    }
 
-    inWorkers(id:string) {
-    return this.order.workers.indexOf(id) != -1
-}
-queryCustomer() {
-    this.showSelectCustomerDlg = true
-}
-prepareOrder() {
-    if (!this.order.salesId)
-        this.order.salesId = this.user._id;
-}
-upsertOrder() {
-    this.prepareOrder();
-    axios.post("/Order", this.order).then(
-        (resp) => {
-            const data = resp.data
-            if (data.ok) {
-                alert("成功")
-                this.$router.push({ name: 'MyOrder' })
+    upsertOrder() {
+        axios.post("/Order", this.order).then(
+            (resp) => {
+                const data = resp.data
+                if (data.ok) {
+                    alert("成功")
+                    this.$router.push({ name: 'MyOrder' })
+                }
+                else
+                    alert("失敗:" + data.msg)
             }
-            else
-                alert("失敗:" + data.msg)
-        }
-    ).catch((err) => {
-        alert(err);
-    })
-}
-components: {
-    Datepicker,
+        ).catch((err) => {
+            alert(err);
+        })
+    }
+    components: {
+        Datepicker,
         SelectCustomerDlg
-}
+    }
 }
 </script>

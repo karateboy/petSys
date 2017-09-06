@@ -23,12 +23,13 @@ export default class NewOrder extends Vue{
     mounted() {
         this.newOrderWithCustomer({ customer: this.customer, storeList: this.storeList })
     }
+    
     @Getter('order') order:Object
     @Getter('customer') customer:Object
     @Getter('storeList') storeList:Array<IStore>
     @Action("newOrderWithCustomer") newOrderWithCustomer:(payload:Object)=>void
     components: {
-        OrderDetail
+        OrderDetail:OrderDetail
     }
 };
 </script>

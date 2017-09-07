@@ -61,7 +61,11 @@ import OrderList from "./OrderList.vue"
 export default class QueryOrder extends Vue {
     display = false
     queryUrl = '/QueryOrder'
-    queryParam = {}
+    queryParam = {
+        _id: null,
+        start: 0,
+        end: 0
+    }
     get start(): Date {
         if (this.queryParam.start)
             return moment(this.queryParam.start).toDate()
@@ -87,18 +91,6 @@ export default class QueryOrder extends Vue {
     prepareParam() {
         if (this.queryParam._id == "")
             this.queryParam._id = null
-
-        if (this.queryParam.brand == "")
-            this.queryParam.brand = null
-
-        if (this.queryParam.name == "")
-            this.queryParam.name = null
-
-        if (this.queryParam.factoryId == '')
-            this.queryParam.factoryId = null
-
-        if (this.queryParam.customerId == '')
-            this.queryParam.customerId = null
     }
 
     query() {
@@ -112,7 +104,7 @@ export default class QueryOrder extends Vue {
 
     components: {
         OrderList: OrderList,
-        Datepicker: DatePicker
+        Datepicker: any
     }
 }
 </script>

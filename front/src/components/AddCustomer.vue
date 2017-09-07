@@ -5,24 +5,32 @@
     </div>
 </template>
 <style>
-    body {
-        background-color: #ff0000;
-    }
-
+body {
+    background-color: #ff0000;
+}
 </style>
-<script>
-    import Customer from './Customer.vue'
-    import {mapGetters} from 'vuex'
+<script lang="ts">
+import {
+    State,
+    Getter,
+    Action,
+    Mutation,
+    namespace
+} from 'vuex-class'
+import { Component, Inject, Model, Prop, Vue, Watch } from 'vue-property-decorator'
 
-    export default {
-        data() {
-            return {}
-        },
-        mounted: function(){
-            this.$store.dispatch('emptyCustomer')
-        },
-        components: {
-            Customer
-        }
+import Customer from './Customer.vue'
+import { mapGetters } from 'vuex'
+
+export default class AddCustomer extends Vue{
+    @Action("emptyCustomer") emptyCustomer:()=>void
+    mounted() {
+        this.emptyCustomer()
+        //this.$store.dispatch('emptyCustomer')
     }
+
+    components: {
+        Customer:Customer
+    }
+}
 </script>

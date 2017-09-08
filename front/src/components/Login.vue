@@ -7,17 +7,17 @@
                         <fieldset>
                             <div class="form-group">
                                 <label class="col-lg-2 control-label">公司:</label>
-                                <div class="col-lg-6"><input class="form-control" placeholder="帳號" type="email" v-model="user.company" required autofocus>
+                                <div class="col-lg-6"><input class="form-control" placeholder="帳號" type="email" v-model="credential.company" required autofocus>
                                 </div>
                             </div>
                             <div class="form-group">
                                 <label class="col-lg-2 control-label">帳號:</label>
-                                <div class="col-lg-6"><input class="form-control" placeholder="帳號" type="email" v-model="user.name" required autofocus>
+                                <div class="col-lg-6"><input class="form-control" placeholder="帳號" type="email" v-model="credential.name" required autofocus>
                                 </div>
                             </div>
                             <div class="form-group">
                                 <label class="col-lg-2 control-label">密碼:</label>
-                                <div class="col-lg-6"><input class="form-control" placeholder="密碼" type="password" required v-model="user.password">
+                                <div class="col-lg-6"><input class="form-control" placeholder="密碼" type="password" required v-model="credential.password">
                                 </div>
                             </div>
                             <!-- Change this to a button or input when using this as a form -->
@@ -71,7 +71,7 @@ export default class Login extends Vue {
         })
     }
 
-    user: {
+    credential = {
         company: "",
         name: "",
         password: ""
@@ -79,7 +79,7 @@ export default class Login extends Vue {
 
     get ready() {
 
-        if (this.user.name != "" && this.user.password != "")
+        if (this.credential.name != "" && this.credential.password != "")
             return true;
         else
             return false;
@@ -88,7 +88,7 @@ export default class Login extends Vue {
     @Action('refreshStoreList') refreshStoreList: () => void
     login() {
         const url = "/authenticate"
-        const resultP = axios.post(url, this.user)
+        const resultP = axios.post(url, this.credential)
 
         resultP.then(
             (resp) => {

@@ -60,7 +60,11 @@ import {
     namespace
 } from 'vuex-class'
 
-@Component
+@Component({
+    components: {
+        menuView: Menu
+    }
+})
 export default class App extends Vue {
     name: 'app'
     logout() {
@@ -75,9 +79,6 @@ export default class App extends Vue {
         }).catch((err) => {
             alert(err)
         })
-    }
-    components: {
-        menuView: Menu
     }
 }
 </script>

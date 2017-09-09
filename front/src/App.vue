@@ -67,13 +67,15 @@ import {
 })
 export default class App extends Vue {
     name: 'app'
+    @Action('logout') logoutVuex:()=>void
+
     logout() {
         axios.get("/logout").then((resp) => {
             const ret = resp.data
             if (!ret.ok)
-                console.log(ret.msg)
+                console.log(ret.msg )
 
-            this.$store.commit('updateAuthenticated', { authenticated: false, user: {}, storeList: [] });
+            this.logoutVuex()
             this.$router.push({ name: 'Login' })
             alert("登出")
         }).catch((err) => {

@@ -22,7 +22,11 @@ import {
 import IUser from './IUser'
 import Store from './Store.vue'
 
-@Component
+@Component({
+    components: {
+        Store: Store
+    }
+})
 export default class AddStore extends Vue {
     @Getter('user') user: IUser
     emptyStore: () =>
@@ -32,9 +36,5 @@ export default class AddStore extends Vue {
             addr: "",
             phone: ""
         }
-
-    components: {
-        Store:Store
-    }
 }
 </script>

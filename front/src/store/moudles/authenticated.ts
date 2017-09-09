@@ -1,19 +1,22 @@
 /**
  * Created by user on 2017/1/12.
  */
+import vue from 'vue'
 import axios from 'axios';
 import IUser from '../../components/IUser'
+import { emptyUser } from '../../components/IUser'
 import IStore from '../../components/IStore'
 
 interface IState {
     authenticated: boolean,
-    user?: IUser,
+    user: IUser,
     storeList: Array<IStore>
 }
 
 const state: IState = {
     authenticated: false,
-    storeList: []
+    storeList: [],
+    user: emptyUser
 }
 
 const getters = {
@@ -83,7 +86,7 @@ const mutations = {
 
 const actions = {
     logout: ({ commit }: { commit: any }) => {
-        commit('updateAuthenticated', { authenticated: false, user: {} });
+        commit('updateAuthenticated', { authenticated: false, user: {}, storeList: [] });
     },
     refreshStoreList: ({ commit }: { commit: any }) => {
         axios.get("/Store").then((resp) => {

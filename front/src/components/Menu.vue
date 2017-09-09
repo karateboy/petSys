@@ -194,6 +194,8 @@ interface User {
     storeList: Array<Number>
 }*/
 
+const ModuleGetter = namespace('../store/moudles', Getter)
+
 @Component
 export default class Menu extends Vue {
     groupInfoMap: { [key: string]: string } = {}
@@ -204,9 +206,9 @@ export default class Menu extends Vue {
     @Getter('companyAdmin') companyAdmin: boolean
     @Getter('companyClerk') companyClerk: boolean
     @Getter('companyUser') companyUser: boolean
+    @Getter('sysAdmin') sysAdmin: boolean
 
     mounted() {
-        console.log("menu mounted...")
         axios.get('/GroupInfo').then((resp) => {
             const ret = resp.data
             for (let groupInfo of ret) {

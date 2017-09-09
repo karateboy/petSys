@@ -1,7 +1,7 @@
 <template>
     <div>
         <br>
-        <user :user='emptyUser()' :isNew='true' :registerCompany="true"></user>
+        <user :user='user' :isNew='true' :registerCompany="true"></user>
     </div>
 </template>
 <style>
@@ -20,17 +20,14 @@ import {
 } from 'vuex-class'
 import { Component, Inject, Model, Prop, Vue, Watch } from 'vue-property-decorator'
 import IUser from './IUser'
+import { emptyUser } from './IUser'
 
-export default class RegisterCompanyOwner extends Vue {
-    @Getter('user') user: IUser
-    emptyUser: () => {
-        _id: ""
-        storeList: Array<Object>
-        company: ""
-        groupID: "Owner"
-    }
+@Component({
     components: {
         User: User
     }
+})
+export default class RegisterCompanyOwner extends Vue {
+    user = emptyUser
 }
 </script>

@@ -24,6 +24,8 @@ body {
 </style>
 <script lang="ts">
 import Vue from 'vue'
-export default class CustomerManagement extends Vue {
-}
+import Component from 'vue-class-component'
+
+@Component
+export default class CustomerManagement extends Vue {}
 </script>

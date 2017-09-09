@@ -22,15 +22,16 @@ import { Component, Inject, Model, Prop, Vue, Watch } from 'vue-property-decorat
 import Customer from './Customer.vue'
 import { mapGetters } from 'vuex'
 
-export default class AddCustomer extends Vue{
-    @Action("emptyCustomer") emptyCustomer:()=>void
+@Component({
+    components: {
+        Customer: Customer
+    }
+})
+export default class AddCustomer extends Vue {
+    @Action("emptyCustomer") emptyCustomer: () => void
     mounted() {
         this.emptyCustomer()
         //this.$store.dispatch('emptyCustomer')
-    }
-
-    components: {
-        Customer:Customer
     }
 }
 </script>

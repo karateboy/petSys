@@ -86,6 +86,9 @@ import {
 } from 'vuex-class'
 import { Component, Inject, Model, Prop, Vue, Watch } from 'vue-property-decorator'
 import IUser from './IUser'
+import GroupInfo from './GroupInfo'
+import IStore from './IStore'
+
 @Component
 export default class User extends Vue {
     @Prop({
@@ -114,10 +117,10 @@ export default class User extends Vue {
         })
     }
 
-    groupInfoList: []
+    groupInfoList: Array<GroupInfo> = []
     passwordRetype: string = ""
 
-    @Getter('storeList') storeList: []
+    @Getter('storeList') storeList: Array<IStore>
     get passwordDifferent() {
         return this.user.password != this.passwordRetype
     }

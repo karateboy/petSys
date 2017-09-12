@@ -57,6 +57,12 @@ import {
 import { Component, Inject, Model, Prop, Vue, Watch } from 'vue-property-decorator'
 import { ICustomer } from './ICustomer'
 
+@Component({
+    components: {
+        Customer,
+        Pagination
+    }
+})
 export default class CustomerList extends Vue {
     @Prop({
         type: String,
@@ -175,11 +181,6 @@ export default class CustomerList extends Vue {
         else
             this.detail = -1
         this.assignCustomer(this.customerList[idx])
-    }
-
-    components: {
-        Customer: Customer,
-        Pagination: any
     }
 }
 </script>

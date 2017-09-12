@@ -31,10 +31,8 @@
 body {}
 </style>
 <script lang="ts">
-import { mapActions } from 'vuex'
-import OrderDetail from './OrderDetail.vue'
+
 import moment from 'moment'
-import { Pagination, PaginationEvent } from 'vue-pagination-2'
 import axios from 'axios'
 import {
     State,
@@ -44,9 +42,24 @@ import {
     namespace
 } from 'vuex-class'
 import { Component, Inject, Model, Prop, Vue, Watch } from 'vue-property-decorator'
+import OrderDetail from './OrderDetail.vue'
+import { Pagination, PaginationEvent } from 'vue-pagination-2'
 import IUser from './IUser'
 import IOrder from './IOrder'
-@Component
+
+//@Component({
+ //   components: {
+//        OrderDetail,
+//        Pagination
+//    }
+//})
+
+@Component({
+    components: {
+        OrderDetail,
+        Pagination        
+    }
+})
 export default class OrderList extends Vue {
     @Prop({
         type: String,
@@ -173,10 +186,6 @@ export default class OrderList extends Vue {
         }).catch((err) => {
             alert(err)
         })
-    }
-    components: {
-        OrderDetail: OrderDetail
-        Pagination: Pagination
     }
 }
 </script>

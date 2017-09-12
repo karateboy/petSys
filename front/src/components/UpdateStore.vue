@@ -35,6 +35,7 @@ import {
 import { Component, Inject, Model, Prop, Vue, Watch } from 'vue-property-decorator'
 import IStore from './IStore'
 
+@Component
 export default class UpdateStore extends Vue {
     selectedStore: null
     @Getter('storeList') storeList: Array<IStore>

@@ -19,6 +19,11 @@ import {
 import { Component, Inject, Model, Prop, Vue, Watch } from 'vue-property-decorator'
 import IStore from './IStore'
 
+@Component({
+    components: {
+        OrderDetail
+    }
+})
 export default class NewOrder extends Vue{
     mounted() {
         this.newOrderWithCustomer({ customer: this.customer, storeList: this.storeList })
@@ -28,8 +33,5 @@ export default class NewOrder extends Vue{
     @Getter('customer') customer:Object
     @Getter('storeList') storeList:Array<IStore>
     @Action("newOrderWithCustomer") newOrderWithCustomer:(payload:Object)=>void
-    components: {
-        OrderDetail:OrderDetail
-    }
 };
 </script>

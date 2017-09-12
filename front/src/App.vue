@@ -49,7 +49,7 @@
 
 <script lang="ts">
 import Vue from 'vue'
-import Menu from "./components/Menu.vue"
+import menuView from "./components/Menu.vue"
 import axios from 'axios'
 import Component from 'vue-class-component'
 import {
@@ -62,7 +62,7 @@ import {
 
 @Component({
     components: {
-        menuView: Menu
+        menuView
     }
 })
 export default class App extends Vue {

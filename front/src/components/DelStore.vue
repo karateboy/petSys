@@ -36,6 +36,8 @@ import {
 import { Component, Inject, Model, Prop, Vue, Watch } from 'vue-property-decorator'
 import IStore from './IStore'
 import IUser from './IUser'
+
+@Component
 export default class DelStore extends Vue {
     storeID: ""
     @Getter('user') user: IUser

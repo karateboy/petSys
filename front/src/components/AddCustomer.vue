@@ -24,7 +24,7 @@ import { mapGetters } from 'vuex'
 
 @Component({
     components: {
-        Customer: Customer
+        Customer
     }
 })
 export default class AddCustomer extends Vue {

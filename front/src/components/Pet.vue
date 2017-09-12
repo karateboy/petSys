@@ -101,6 +101,11 @@ import {
 import { Component, Inject, Model, Prop, Vue, Watch } from 'vue-property-decorator'
 import { IPet } from './ICustomer'
 
+@Component({
+    components: {
+        Datepicker
+    }
+})
 export default class Pet extends Vue {
     @Prop({
         type: Boolean,
@@ -153,7 +158,7 @@ export default class Pet extends Vue {
             return new Date()
     }
 
-    set bdate(val:Date) {
+    set bdate(val: Date) {
         this.pet.bdate = val.getTime()
     }
 
@@ -164,7 +169,7 @@ export default class Pet extends Vue {
             return new Date()
     }
 
-    set chip(val:Date) {
+    set chip(val: Date) {
         this.pet.chip = val.getTime()
     }
 
@@ -178,9 +183,6 @@ export default class Pet extends Vue {
             index: this.index,
             pet: Object.assign({}, this.pet)
         })
-    }
-    components: {
-        Datepicker
     }
 }
 </script>

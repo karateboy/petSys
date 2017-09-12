@@ -3,8 +3,10 @@
         <div class="modal-dialog modal-lg">
             <div class="modal-content animated fadeIn">
                 <div class="modal-header">
-                    <button type="button" class="close" data-dismiss="modal"><span
-                            aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+                    <button type="button" class="close" data-dismiss="modal">
+                        <span aria-hidden="true">&times;</span>
+                        <span class="sr-only">Close</span>
+                    </button>
                     <h4 class="modal-title">查詢客戶</h4>
                 </div>
                 <div class="modal-body">
@@ -21,34 +23,35 @@
     </div>
 </template>
 <style>
-    body {
-        background-color: #ff0000;
-    }
+body {
+    background-color: #ff0000;
+}
 </style>
-<script>
-    import axios from 'axios'
-    import QueryCustomer from './QueryCustomer.vue'
-    import Datepicker from 'vuejs-datepicker'
-    import {mapGetters, mapActions} from 'vuex'
+<script lang="ts">
+import axios from 'axios'
+import QueryCustomer from './QueryCustomer.vue'
+import Datepicker from 'vuejs-datepicker'
+import {
+    State,
+    Getter,
+    Action,
+    Mutation,
+    namespace
+} from 'vuex-class'
+import { Component, Inject, Model, Prop, Vue, Watch } from 'vue-property-decorator'
 
-    export default {
-        props: {
-        },
-        data() {
-            return {
-            }
-        },
-        mounted:function(){
-          this.emptyCustomer()
-        },
-        computed:{
-            ...mapGetters(['isEmptyCustomer'])
-        },
-        methods:{
-            ...mapActions(['emptyCustomer'])
-        },
-        components: {
-            QueryCustomer
-        }
+@Component({
+    components: {
+        QueryCustomer
     }
+})
+export default class SelectCustomerDlg extends Vue {
+    mounted() {
+        this.emptyCustomer()
+    }
+
+    @Getter('isEmptyCustomer') isEmptyCustomer: boolean
+
+    @Action('emptyCustomer') emptyCustomer: () => void
+}
 </script>

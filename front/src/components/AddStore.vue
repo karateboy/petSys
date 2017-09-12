@@ -24,7 +24,7 @@ import Store from './Store.vue'
 
 @Component({
     components: {
-        Store: Store
+        Store
     }
 })
 export default class AddStore extends Vue {

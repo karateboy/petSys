@@ -136,6 +136,12 @@ import {
 import { Component, Inject, Model, Prop, Vue, Watch } from 'vue-property-decorator'
 import { ICustomer, IPet } from './ICustomer'
 
+@Component({
+    components: {
+        Pet: Pet,
+        Datepicker
+    }
+})
 export default class Customer extends Vue {
     newPet = true
     petIndex = 0
@@ -266,11 +272,6 @@ export default class Customer extends Vue {
 
     cancelPetHandler() {
         this.showPetModal = false
-    }
-
-    components: {
-        Pet:Pet,
-        Datepicker:any
     }
 }
 </script>

@@ -63,6 +63,12 @@ import moment from 'moment'
 import Datepicker from 'vuejs-datepicker'
 import CustomerList from './CustomerList.vue'
 
+@Component({
+    components: {
+        CustomerList,
+        Datepicker
+    }
+})
 export default class QueryCustomer extends Vue {
     @Prop({
         type: Boolean,
@@ -89,7 +95,7 @@ export default class QueryCustomer extends Vue {
         this.queryParam.start = newValue.getTime()
     }
 
-    get end(){
+    get end() {
         if (this.queryParam.end)
             return moment(this.queryParam.end).toDate()
         else
@@ -117,11 +123,6 @@ export default class QueryCustomer extends Vue {
             this.display = true
 
         this.queryParam = Object.assign({}, this.queryParam)
-    }
-
-    components: {
-        CustomerList:CustomerList,
-        Datepicker:any
     }
 }
 </script>

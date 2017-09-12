@@ -36,6 +36,7 @@ import {
 import { Component, Inject, Model, Prop, Vue, Watch } from 'vue-property-decorator'
 import IUser from './IUser'
 
+@Component
 export default class DelUser extends Vue {
     userList: Array<IUser>
     userID: ""
@@ -68,6 +69,5 @@ export default class DelUser extends Vue {
             alert(err)
         })
     }
-     components: {}
 }
 </script>

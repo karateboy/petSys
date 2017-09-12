@@ -58,6 +58,12 @@ import moment from 'moment'
 import Datepicker from 'vuejs-datepicker'
 import OrderList from "./OrderList.vue"
 
+@Component({
+    components: {
+        OrderList,
+        Datepicker
+    }
+})
 export default class QueryOrder extends Vue {
     display = false
     queryUrl = '/QueryOrder'
@@ -99,12 +105,6 @@ export default class QueryOrder extends Vue {
             this.display = true
 
         this.queryParam = Object.assign({}, this.queryParam)
-    }
-
-
-    components: {
-        OrderList: OrderList,
-        Datepicker: any
     }
 }
 </script>

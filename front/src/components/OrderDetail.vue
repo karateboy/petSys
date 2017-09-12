@@ -83,6 +83,12 @@ import IUser from './IUser'
 import IOrder from './IOrder'
 import { ICustomer } from './ICustomer'
 
+@Component({
+    components: {
+        Datepicker,
+        SelectCustomerDlg
+    }
+})
 export default class OrderDetail extends Vue {
     showSelectCustomerDlg = false
     clerkList: Array<string>
@@ -154,10 +160,6 @@ export default class OrderDetail extends Vue {
         ).catch((err) => {
             alert(err);
         })
-    }
-    components: {
-        Datepicker,
-        SelectCustomerDlg
     }
 }
 </script>

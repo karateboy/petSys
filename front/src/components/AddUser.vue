@@ -22,7 +22,11 @@ import {
 } from 'vuex-class'
 import IUser from './IUser'
 
-@Component
+@Component({
+    components: {
+        User
+    }
+})
 export default class AddUser extends Vue {
     @Getter('user') user: IUser
     emptyUser() {
@@ -32,9 +36,6 @@ export default class AddUser extends Vue {
             company: this.user.company,
             groupID: "Clerk"
         }
-    }
-    components: {
-        User: User
     }
 }
 </script>

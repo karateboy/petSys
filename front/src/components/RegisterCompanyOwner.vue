@@ -24,7 +24,7 @@ import { emptyUser } from './IUser'
 
 @Component({
     components: {
-        User: User
+        User
     }
 })
 export default class RegisterCompanyOwner extends Vue {

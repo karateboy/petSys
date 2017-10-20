@@ -34,7 +34,7 @@ export default class AddUser extends Vue {
             _id: "",
             storeList: JSON.parse(JSON.stringify(this.user.storeList)),
             company: this.user.company,
-            groupID: "Clerk"
+            groupID: "Manager"
         }
     }
 }

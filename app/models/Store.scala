@@ -10,7 +10,8 @@ import scala.concurrent.ExecutionContext.Implicits.global
 import scala.language.implicitConversions
 import org.mongodb.scala.bson._
 
-case class Store(var _id: Long, name:String, addr: String, phone: String)
+case class Store(var _id: Long, name: String, addr: String, phone: String,
+                 clerks: Seq[String] = Seq.empty[String])
 object Store {
   import org.mongodb.scala._
   import org.mongodb.scala.bson.codecs.Macros._
@@ -77,7 +78,7 @@ object Store {
     val groupID = Group.withName(usr.groupID)
     if (groupID == Group.Owner || groupID == Group.Admin) {
       getAllStores
-    } else if (groupID == Group.Manager || groupID == Group.Clerk) {
+    } else if (groupID == Group.Manager) {
       getStoreList(usr.storeList)
     } else
       throw new Exception(s"Unknow groupID ${usr.groupID}")

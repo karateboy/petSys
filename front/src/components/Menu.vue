@@ -93,15 +93,15 @@
                             <i class="fa fa-th-large"></i>
                             <span class="nav-label"></span>更新店鋪</a>
                     </router-link>
-                    <li v-for="store in storeList">
+                   <!--  <li v-for="store in storeList">
                         <a>
                             <i class="fa fa-th-large"></i>
                             <span class="nav-label">{{store.name}}</span>
                         </a>
-                    </li>
+                    </li> -->
                 </ul>
             </li>
-            <li v-show="companyOwner">
+            <!-- <li v-show="companyOwner">
                 <a aria-expanded="true" class="has-arrow">
                     <i class="fa fa-th-large"></i>
                     <span class="nav-label">報表查詢</span>
@@ -113,7 +113,7 @@
                             <span class="nav-label"></span>每月的犬種來客量</a>
                     </router-link>
                 </ul>
-            </li>
+            </li> -->
             <li v-show="companyAdmin">
                 <a>
                     <i class="fa fa-th-large"></i>
@@ -137,20 +137,6 @@
                         <a>
                             <i class="fa fa-th-large"></i>
                             <span class="nav-label"></span>更新人員資料</a>
-                    </router-link>
-                </ul>
-            </li>
-            <li v-show="companyClerk">
-                <a>
-                    <i class="fa fa-th-large"></i>
-                    <span class="nav-label">個人帳戶管理</span>
-                    <span class="fa arrow"></span>
-                </a>
-                <ul class="nav nav-second-level collapse">
-                    <router-link tag="li" :to="{name:'UpdateUser'}" active-class="active">
-                        <a>
-                            <i class="fa fa-th-large"></i>
-                            <span class="nav-label"></span>更新帳戶資料</a>
                     </router-link>
                 </ul>
             </li>

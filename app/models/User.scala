@@ -64,9 +64,6 @@ object User {
   val defaultManager = buildAdminUser("manager", "abc123", "0920660136",
     "karateboy.tw@gmail.com", Group.Manager)
 
-  val defaultClerk = buildAdminUser("clerk", "abc123", "0920660136",
-    "karateboy.tw@gmail.com", Group.Clerk)
-
   def init(colNames: Seq[String]) {
     if (!colNames.contains(colName)) {
       val f = MongoDB.masterDB.createCollection(colName).toFuture()
@@ -77,13 +74,12 @@ object User {
     f.onSuccess({
       case count: Long =>
         if (count == 0) {
-          Logger.info("create default admin/owner/manager/clerk")
+          Logger.info("create default admin/owner/manager")
           val completeF = newCompanyOwner(defaultOwner)
           completeF.onSuccess({
             case x =>
               newUser(defaultAdmin)
               newUser(defaultManager)
-              newUser(defaultClerk)
           })
         }
     })

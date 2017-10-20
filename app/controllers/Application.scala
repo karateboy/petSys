@@ -163,14 +163,7 @@ object Application extends Controller {
           case Group.Manager =>
             val filterdUser = users.filter { usr =>
               val usrGroupID = Group.withName(usr.groupID)
-              usrGroupID == Group.Clerk ||
-                (usrGroupID == Group.Manager && userInfo.id == usr._id)
-            }
-            Ok(Json.toJson(filterdUser))
-          case Group.Clerk =>
-            val filterdUser = users.filter { usr =>
-              val usrGroupID = Group.withName(usr.groupID)
-              usrGroupID == Group.Clerk && userInfo.id == usr._id
+              usrGroupID == (usrGroupID == Group.Manager && userInfo.id == usr._id)
             }
             Ok(Json.toJson(filterdUser))
         }

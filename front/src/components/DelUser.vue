@@ -38,8 +38,8 @@ import IUser from './IUser'
 
 @Component
 export default class DelUser extends Vue {
-    userList: Array<IUser>
-    userID: ""
+    userList: Array<IUser> = []
+    userID = ""
     @Getter('user') user: IUser
     mounted() {
         this.refresh()

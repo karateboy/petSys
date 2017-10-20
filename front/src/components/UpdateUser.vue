@@ -35,10 +35,14 @@ import {
 import { Component, Inject, Model, Prop, Vue, Watch } from 'vue-property-decorator'
 import IUser from './IUser'
 
-@Component
+@Component({
+    components: {
+        User: User
+    }
+})
 export default class UpdateUser extends Vue {
-    userList: Array<IUser>
-    selectedUser?: IUser
+    userList: IUser[] = []
+    selectedUser: IUser|null = null
     mounted() {
         this.refresh()
     }
@@ -55,9 +59,6 @@ export default class UpdateUser extends Vue {
         }).catch((err) => {
             alert(err)
         })
-    }
-    components: {
-        User: User
-    }
+    }    
 }
 </script>

@@ -8,14 +8,12 @@ object Group extends Enumeration {
   val Admin = Value
   val Owner = Value
   val Manager = Value
-  val Clerk = Value
 
-  val levelSeq = Seq(Owner, Manager, Clerk) 
+  val levelSeq = Seq(Owner, Manager) 
   val map = Map(
     Admin -> "系統管理員",
     Owner -> "老闆",
-    Manager -> "店長",
-    Clerk -> "店員")
+    Manager -> "店長")
 
   def getInfoList ={
     map.map { m => GroupInfo(m._1.toString, m._2) }.toList

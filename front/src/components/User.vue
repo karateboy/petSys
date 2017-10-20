@@ -4,7 +4,7 @@
             <div class="form-group">
                 <label class="col-lg-2 control-label">公司</label>
                 <div class="col-lg-5">
-                    <input type="text" placeholder="帳號" class="form-control" v-model="user.company" :readonly="!isCompanyOwner">
+                    <input type="text" placeholder="帳號" class="form-control" v-model="user.company" :readonly="registerCompany">
                 </div>
             </div>
 
